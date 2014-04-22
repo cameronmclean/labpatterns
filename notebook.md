@@ -34,8 +34,10 @@ DATABASES = {
 
 Next - created data schema using MySQLWorkbench
 ###### Because I have heard it is eaiser to do this then import it via `inspectdb` rather than build the model in Django first...
-	- foreign key constraints must have a unique name
-	- used `<tablename><column_name>_fk` syntax to name the constraint so the generated SQL looks something like 
+NOTE:
+- foreign key constraints must have a unique name
+- used `<tablename><column_name>_fk` syntax to name the constraint so the generated SQL looks something like 
+
 ```
 -- -----------------------------------------------------
 -- Table `mydb`.`force`
@@ -54,9 +56,96 @@ CREATE TABLE IF NOT EXISTS `mydb`.`force` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 ```
+
 e.g the above is for the "force" relation. Note: DELETE/UPDATE are curently set to no action. Will revisit this later....
-Also #### keep the table names in lowercase for import into Django.
+##### keep the table names in lowercase for import into Django.
 
-
-### Django only supports single column primary keys - these are needed for the admin interface - which I want to take advange of...
+#### Django only supports single column primary keys - these are needed for the admin interface - which I want to take advange of...
 ###### Going back to modify my ER for mySQL now... hmmm
+
+###### 20140422
+
+Modified schema to include single primary keys.
+Used MySQLWorkbench to forward engineer basic pattern schema...
+Using `mydb` as schema name.
+OK!
+
+Now - to autogenerate the models from the db schema, following the Django doc..
+https://docs.djangoproject.com/en/1.6/howto/legacy-databases/
+
+##### Python couldn't find `libmysqlclient.18.dylib`
+
+added the following to ~/.bash_profile
+
+```
+# setting env variable for python-mysql to find all the things
+DYLD_LIBRARY_PATH=$DYLD_LIBRARYPATH:/Applications/mampstack-5.4.26-2/mysql/lib
+export DYLD_LIBRARY_PATH
+```
+Works now.
+
+created models.py from db tables using 
+
+```
+$ python manage.py inspectdb > models.py
+```
+
+Cleaned up models.py by
+1. Setting managed = True
+2. Commenting out author model etc for now - just focus on the pattern structure
+3. Changed order of model classes to resemnle correct/natural pattern format
+
+synced db with no apps started yet (just an empty project with the models.py not yet moved to an app folder)
+
+```
+$ python manage.py syncdb
+```
+
+OK
+
+*superuser* for site defined as
+##### Username : cameronmclean
+##### email : ca.mclean@auckland.ac.nz
+##### psw : labpatterns
+
+(for now - just for dev and testing on local machine of course!!)
+
+Started app called **patterns**
+
+```
+$ python manage.py startapp patterns
+```
+
+moved cleaned up models.py into patterns app folder
+
+added 'patterns' to the installed apps in the project settings.py
+
+```
+INSTALLED_APPS = (
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'patterns',
+)
+```
+
+added patterns to the admin.py in the pattern app
+
+```
+from patterns.models import *
+
+admin.site.register(DesignPattern)
+admin.site.register(Problem)
+admin.site.register(Context)
+admin.site.register(Solution)
+admin.site.register(Force)
+admin.site.register(Rationale)
+admin.site.register(Diagram)
+admin.site.register(Evidence)
+```
+to make all model objects able to managed by the admin site
+
+
