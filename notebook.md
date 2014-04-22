@@ -148,4 +148,43 @@ admin.site.register(Evidence)
 ```
 to make all model objects able to managed by the admin site
 
+## Using an exising mySQL to autogenreate the model wasn't so good
+
+All sorts of niggly little things, like only primary keys can autoupdate, field mismatches 
+eg - I had declared pictogram fields as MEDIUMBLOB, but Django doesn't like this - prefers ImageField or FileField, which are stored as VARCHAR and point to the path of the stored image on the webserver 
+##### So images for now might not be stored in the db... will chase this up later...
+
+### Re-wrote the models.py from a Django first persective, and overide the default table naming mechanism.
+Deleted the database using mySQLWorkbench, created a new one with the same name `mydb`
+ran 
+`$ python manage.py syncdb`
+Needed to issue a new superuser via
+`$ python manage.py createsuperuser` (used the same credential as above)
+
+Typical classes for the model (in models.py) now look like this
+
+```
+class Force(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField('Name', unique=True, max_length=255)
+    parent_pattern = models.ForeignKey(DesignPattern)
+    pictogram = models.ImageField('Force Pictogram', upload_to='pictograms')
+    description = models.TextField('Description', blank=True)
+    
+    def __unicode__(self):
+        return self.parent_pattern.name
+
+    class Meta:
+        db_table = 'force'
+```
+-Allows autogen on ID field, which the primary key - makes Admin site nicer
+- will prbably need to tweak the unicode(self) return later...
+
+In testing - db constraints seem to work - cant add force without it belonging to a parent pattern.
+Nice.
+
+I'm liking this for now !
+
+
+
 
