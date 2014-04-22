@@ -185,6 +185,18 @@ Nice.
 
 I'm liking this for now !
 
+OK - 
+### Dealing with changes to DB/Model Schema
+
+So it seems that Django is OK to add new models (i.e classes/db tables), but making chages to exisitng ones and keeping it in sync with the DB is troublesome. i.e if you later want to make a field unique=true
+
+So I installed South and followed their documentation http://south.readthedocs.org/en/latest/tutorial/part1.html
+`$ pip install South`
+Added `'south'` to the installed apps in settings.py
+Ran `syncdb`
+then ran `$ python manage.py convert_to_south patterns` to convert the exisitng app so that model changes are more eaisily handled and synced with the DB.
+
+Havent needed to use it yet, but internets say it's useful/essential...
 
 
 
