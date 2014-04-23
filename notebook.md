@@ -198,5 +198,12 @@ then ran `$ python manage.py convert_to_south patterns` to convert the exisitng 
 
 Havent needed to use it yet, but internets say it's useful/essential...
 
+###### 20140423
+
+Added example pattern to db via Django admin page.
+Admin page and model needs *much* tweaking, but first aim is just to have something there so we can see if R2RML and various engines can get it out and into RDF...
+
+
+
 
 

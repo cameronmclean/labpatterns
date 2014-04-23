@@ -1,0 +1,31 @@
+#
+# First attempt at R2RML mapping for pattern in mySQL entered via Django admin
+# based in priyatna paper from ISWC 2013
+#
+
+
+@prefix rr: <http://www.w3.org/ns/r2rml#> .
+@prefix rdf: <http://http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix lp: <http://labpatterns.org/ns#> .
+
+# create a triples map where the subject is a rdfs:Class with a newly minted IRI of the design_pattern {name} value, the predicate is rdf:label, object is the literal value of the {name} column
+# also assert that the newly minted IRI and pattern name is a subclass of "DesignPattern"
+
+<TriplesMapPatternName> a rr:TriplesMap ;
+	rr:logicalTable [ rr:tableName "design_pattern" ];
+
+	rr:subjectMap [ rr:class rdfs:Class ;
+					rr:termType rr:IRI ;
+					rr:template "http://labpatterns.org/ns/pattern/{name}" ;
+					];
+
+	rr:predicateObjectMap [ rr:predicate rdfs:label ;
+							rr:objectMap [ rr:column "name" ] ;
+	];
+
+	rr:predicateObjectMap [ rr:predicate rdfs:subClassOf ;
+							rr:objectMap [ rr:constant "http://labpatterns.org/ns/DesignPattern"] ;
+	];
+
+
