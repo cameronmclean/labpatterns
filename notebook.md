@@ -203,7 +203,85 @@ Havent needed to use it yet, but internets say it's useful/essential...
 Added example pattern to db via Django admin page.
 Admin page and model needs *much* tweaking, but first aim is just to have something there so we can see if R2RML and various engines can get it out and into RDF...
 
+wrote simple R2RML file to get pattern names from db and turn them into Classes, with an IRI and a rdfs:label.
 
+Now - to install DB2Triples
 
+1. Install maven
 
+- alrady installed via Xcode.
+Following http://books.sonatype.com/mvnref-book/reference/installation-sect-maven-install.html
 
+Created symbolic link so other apps can find it and then added evn variable and PATH settings
+
+```
+/usr/local $ ln -s apache-maven/apache-maven-3.2.1 mavan
+/usr/local $ export M2_HOME=/usr/local/maven
+/usr/local $ export PATH=${M2_HOME}/bin:${PATH}
+```
+
+mvn works OK.
+
+Next - cloned db2triples from https://github.com/antidot/db2triples
+cd into cloned dir and ran `mvn package`
+which takes the pom.xml and does some magic to create db2triples-1.0.3-SNAPSHOT.jar
+
+db2triples has some dependancies 
+ 
+downloaded -
+
+apache commons CLI from http://commons.apache.org/proper/commons-cli/download_cli.cgi
+and cp commons-cli-1.2.jar into `target` dir
+
+apache common-logging 1.1.1 from http://archive.apache.org/dist/commons/logging/binaries/
+and cp commons-logging-1.1.1.jar into `target` dir
+
+OPenRDF Sesame 2.6.10 from http://sourceforge.net/projects/sesame/files/Sesame%202/
+and cp openrdf-sesame-2.6.10-onejar.jar into `target` dir
+
+also got mySQL JDBC driver from http://dev.mysql.com/downloads/connector/j/
+and cp mysql-connector-java-5.1.30-bin.jar into `target` dir
+
+to run db2triples at the command line, we need to call net.antidot.semantic.rdf.rdb2rdf.main.Db2triples from db2triples-1.0.3-SNAPSHOT.jar
+but also include all the dependencies...
+
+I ended up doing it this way (with all the depedent .jar files in the same db2triples target dir)
+
+Had to set `$ export CLASSPATH=/Users/cameronmclean/Projects/db2rml/target:$CLASSPATH` 
+##### Note: no other path is set in CLASSPATH
+-Probably should sort out proper PATH and CLASSPATH env variables for Java and maven... They dont seem to be configured....
+
+But, running the following works!
+
+```
+java -cp commons-cli-1.2.jar:commons-logging-1.1.1.jar:openrdf-sesame-2.6.10-onejar.jar:db2triples-1.0.3-SNAPSHOT.jar:mysql-connector-java-5.1.30-bin.jar net.antidot.semantic.rdf.rdb2rdf.main.Db2triples 
+
+```
+
+##### Note: when connecting to DB via JDBC need to specify URL as "jdbc:mysql://127.0.0.1:3306/"
+
+also had trouble with exception - `java.lang.NoClassDefFoundError: org.slf4j.LoggerFactory`
+i.e cant find the class contained in slf4.jar 
+added slf4j-api-1.7.7.jar from http://www.slf4j.org/download.html to `target` and included in depdency commandline list.
+
+#### So... using a hastily scratched up R2RML.ttl file ...
+
+Running
+
+```
+java -cp commons-cli-1.2.jar:commons-logging-1.1.1.jar:openrdf-sesame-2.6.10-onejar.jar:db2triples-1.0.3-SNAPSHOT.jar:mysql-connector-java-5.1.30-bin.jar:slf4j-api-1.7.7.jar net.antidot.semantic.rdf.rdb2rdf.main.Db2triples -b 'mydb' -l 'jdbc:mysql://127.0.0.1:3306/' -m 'r2rml' -p 'bitnami' -r 'lp_R2RML.ttl' -u 'root' -t 'RDFXML' -d 'com.mysql.jdbc.Driver' 
+```
+actaully worked to give an output.ttl (*note actually in RDF/XML* as per the -t )
+
+Cool!
+
+So - recap
+
+- Configured maven
+- Cloned db2triples git repo
+- ran `mvn package` in cloned dir
+- copied over additional .jar dependencies to db2triples target dir
+- set $CLASSPATH
+- run at command line as above - mostly seems OK!
+ 
+ Note: maybe reorganise .jar in proper library places?

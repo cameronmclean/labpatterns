@@ -26,6 +26,4 @@
 
 	rr:predicateObjectMap [ rr:predicate rdfs:subClassOf ;
 							rr:objectMap [ rr:constant "http://labpatterns.org/ns/DesignPattern"] ;
-	];
-
-
+	];.
