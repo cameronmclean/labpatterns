@@ -285,3 +285,86 @@ So - recap
 - run at command line as above - mostly seems OK!
  
  Note: maybe reorganise .jar in proper library places?
+
+ ##### 20140429
+
+copied slf4j-simple-1.7.7.jar into /target dir and added as dependency - removed LoggerFactory error....
+
+
+```
+java -cp commons-cli-1.2.jar:commons-logging-1.1.1.jar:openrdf-sesame-2.6.10-onejar.jar:db2triples-1.0.3-SNAPSHOT.jar:mysql-connector-java-5.1.30-bin.jar:slf4j-api-1.7.7.jar:slf4j-simple-1.7.7.jar net.antidot.semantic.rdf.rdb2rdf.main.Db2triples -b 'mydb' -l 'jdbc:mysql://127.0.0.1:3306/' -m 'r2rml' -p 'bitnami' -r 'lp_R2RML.ttl' -u 'root' -t 'RDFXML' -d 'com.mysql.jdbc.Driver' 
+```
+second version of r2rml.ttl file attempted to extract pattern names into a URI, and force names into a URI.
+However - always received the following error
+
+```
+014/04/29 16:44:39:544 NZST [DEBUG] R2RMLEngine - [R2RMLEngine:constructLogicalTable] Run effective SQL Query : SELECT * FROM force
+com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'force' at line 1
+```
+
+Not sure why `pattern_name` works OK and `force` doesnt, but seems that db2triples doesnt pick the dbname properly.
+Workaround for now seems that as long as I specify the db name prefix for all `rr:tableName "mydb.force"` etc it works...
+
+So - spcify <dn_name>.<table_name> in r2rml files and seems OK.
+
+Made a spiffy rule that turns force names into IRIs, asserts them as rdfs:Classes and then asserts them as partOf their parent pattern...
+
+```
+# Generate an IRI for each of the forces, and give them a label
+<#TriplesMapForce> a rr:TriplesMap ;
+    rr:logicalTable [ rr:tableName "mydb.force" ];
+
+    rr:subjectMap [ rr:class rdfs:Class ;
+                    rr:termType rr:IRI ;
+                    rr:template "http://labpatterns.org/ns/force/{name}" ; 
+                    ];
+
+    rr:predicateObjectMap [ rr:predicate rdfs:label ;
+                            rr:objectMap [ rr:column "name" ] ;
+                            ];
+
+
+
+# assert that each force is part of its parent pattern - does a join on id value form pattern and force tables, and return the value for the subject? for the #patternnaemtriplesmap above?
+
+    rr:predicateObjectMap   [ rr:predicate odp:isPartOf ;
+                            rr:objectMap [
+                                rr:parentTriplesMap <#TriplesMapPatternName> ;
+                                rr:joinCondition [
+                                    rr:child "parent_pattern_id" ;
+                                    rr:parent "id" ;
+                                    ];
+                                ];
+                        ];.
+```
+
+seems to work! for exmaple the XML/RDF output has this kind of thing....
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+
+<rdf:Description rdf:about="http://labpatterns.org/ns/pattern/Photons%20Alive">
+    <rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+    <label xmlns="http://www.w3.org/2000/01/rdf-schema#">Photons Alive</label>
+</rdf:Description>
+
+<rdf:Description rdf:about="http://labpatterns.org/ns/force/Immobilisation">
+    <rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+    <label xmlns="http://www.w3.org/2000/01/rdf-schema#">Immobilisation</label>
+</rdf:Description>
+
+<rdf:Description rdf:about="http://labpatterns.org/ns/force/Immobilisation">
+    <isPartOf xmlns="http://www.ontologydesignpatterns.org/cp/owl/partof.owl#" rdf:resource="http://labpatterns.org/ns/pattern/Photons%20Alive"/>
+</rdf:Description>
+
+```
+
+Cooool!
+
+Next? > to put this .rdf into a triplestore/SPARQL endoint show that it can be accessed remotely and query it.
+Then > build a proper Django/mySQL model and target 1)Meta Vocab, 2) Linked data version....
+Then then > write the R2RML mappings.
+Then then make the Django side have all the functions and look nice..  
+
