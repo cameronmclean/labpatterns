@@ -305,7 +305,7 @@ com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException: You have an error in 
 Not sure why `pattern_name` works OK and `force` doesnt, but seems that db2triples doesnt pick the dbname properly.
 Workaround for now seems that as long as I specify the db name prefix for all `rr:tableName "mydb.force"` etc it works...
 
-So - spcify <dn_name>.<table_name> in r2rml files and seems OK.
+So - spcify `<dn_name>.<table_name>` in r2rml files and seems OK.
 
 Made a spiffy rule that turns force names into IRIs, asserts them as rdfs:Classes and then asserts them as partOf their parent pattern...
 
@@ -367,4 +367,14 @@ Next? > to put this .rdf into a triplestore/SPARQL endoint show that it can be a
 Then > build a proper Django/mySQL model and target 1)Meta Vocab, 2) Linked data version....
 Then then > write the R2RML mappings.
 Then then make the Django side have all the functions and look nice..  
+
+##### 20140506
+
+Havent attempted .rdf > SPAQRL yet, but did start on the pattern ontology - see other repo....
+
+Building pattern site one step at a time.
+
+Added view, url, and template for homepage, and a page to add new patterns.
+Next to learn the django way of using forms to add objects to the DB....
+
 

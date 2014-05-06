@@ -24,6 +24,10 @@ DEBUG = True
 
 TEMPLATE_DEBUG = True
 
+TEMPLATE_DIRS =  (
+    "/Users/cameronmclean/Projects/eclipse_workspace/labpatterns/patterns/templates",
+    )
+
 ALLOWED_HOSTS = []
 
 
