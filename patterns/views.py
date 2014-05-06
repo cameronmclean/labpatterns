@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from patterns.forms import NewPatternName
 
@@ -9,12 +9,13 @@ def home(request):
 	return render(request, 'home.html')
 
 def add_new_pattern_name(request):
+	form = NewPatternName()
 	if request.method == 'POST':
 		form = NewPatternName(request.POST)
-		print form
-		#form.save()
-		#if form.is_valid():
-		#	new_name = form['name']
-		#name = request.POST['name']
-		#print name
+		if form.is_valid():
+			# model ImageField and modelForms field are causing validation errors. Need to declare the right type.. 
+			form.save()
+		
+		return redirect('/')
+
 	return render(request, 'new_name.html', {'form':form})
