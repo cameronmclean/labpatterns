@@ -377,4 +377,12 @@ Building pattern site one step at a time.
 Added view, url, and template for homepage, and a page to add new patterns.
 Next to learn the django way of using forms to add objects to the DB....
 
+1st tried making manual HTML forms... OK
+2nd - tried the Django forms library - OK but looks terrible on screen.
+3rd - as the forms map closely to the database - try ModelForm classes 
+#### Hopefully it will be possible to customise the form HTML later 
+- some prelim googleing suggests this is possible so will try for ModelForms for now.
+Benefits of using Django forms is the ease of vaidation, cleaning, error handling etc....
+
+  
 
