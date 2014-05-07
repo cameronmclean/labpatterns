@@ -11,7 +11,7 @@ def home(request):
 def add_new_pattern_name(request):
 	form = NewPatternName()
 	if request.method == 'POST':
-		form = NewPatternName(request.POST)
+		form = NewPatternName(request.POST, request.FILES)
 		if form.is_valid():
 			# model ImageField and modelForms field are causing validation errors. Need to declare the right type.. 
 			form.save()

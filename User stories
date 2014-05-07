@@ -7,6 +7,8 @@ User stories
 
 # He clicks contribute and is asked to log in, and create an account if he doesn already have one.
 
-# After logging in, he is presented with the option to modify an exisitng patter or enter a new one
+# After logging in, he is presented with the option to modify an exisitng pattern or enter a new one
 
-# he clicks new pattern, and is presented with a clean page with two forms - One for the title of hte new pattern, and one to upload a picture.
+# he clicks new pattern, and is presented with a clean page with two form fileds - One for the title of hte new pattern, and one to upload a picture.
+
+# after submittng a new name and picture, cam is presented with the next page to enter a pith problem description and a longer context description...
