@@ -435,3 +435,26 @@ I can now save a pattern name and pictogram to the database via the web form...
 NOTE: If pattern name is non-unique (i,e already exists - error passes silently, but the save to db does not occur)
 Need to deal with this shortly...
 
+#### Making links between Django pages
+
+in the (HTML) template - specify the href attribute for links as `href="{% url <name> %}"` where `<name>` is the name attribute you gave in urls.py.
+Note - this assumes linking pages between the same app - we can namespace this if we want to link pages across apps....
+
+Next - after adding pic and name, redirect to new page to enter problem and context description.
+-There is a problem here as we cant save any form input for problem or context without knowing the pattern ID - a foreign key in these tables in the DB.
+Some possible solutions to investigate.
+    maybe best is to not save the name/pictogram yet but commit and save to a variable.
+    then do a GET-type of call on variable.pattern_ID
+
+OK - so the essence of the problem is that I need to pass variables between views.
+ - so that what is stored in page 1 is accessible to page 2 etc....
+
+ There are a few ways to do this
+    - cookies
+    - GET from database and pass into hidden fields (dirties hte POST request?, and if interrupted half way through can leave incomplete db records)
+
+AHh - maybe Django sessions is the way to go....
+https://docs.djangoproject.com/en/dev/topics/http/sessions/#topics-http-sessions
+eg use `newObject = form.save(commit=False)` and copy the various new pattern objects (models) to the session (server side db cache/cookie thing)
+Once the chain and revision/editing is complete, write (`.save()`) all the objects to the db proper?
+
