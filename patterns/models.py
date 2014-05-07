@@ -12,7 +12,7 @@ from django.db import models
 class DesignPattern(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField('Pattern Name', unique=True, max_length=255)
-    pictogram = models.ImageField('Pattern Pictogram', upload_to='pictograms')
+    pictogram = models.FileField('Pattern Pictogram', upload_to='pictograms')
     author = models.CharField('Author', max_length=45, blank=True)
     contributor = models.CharField('Contributor', max_length=45, blank=True)
     
@@ -63,7 +63,7 @@ class Force(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField('Name', unique=True, max_length=255)
     parent_pattern = models.ForeignKey(DesignPattern)
-    pictogram = models.ImageField('Force Pictogram', upload_to='pictograms')
+    pictogram = models.FileField('Force Pictogram', upload_to='pictograms')
     description = models.TextField('Description', blank=True)
     
     def __unicode__(self):
@@ -88,7 +88,7 @@ class Rationale(models.Model):
 class Diagram(models.Model):
     id = models.AutoField(primary_key=True)
     parent_pattern = models.ForeignKey(DesignPattern)
-    diagram = models.ImageField('Supporting Diagram', upload_to='diagrams')
+    diagram = models.FileField('Supporting Diagram', upload_to='diagrams')
     title = models.CharField('Title', max_length=255, blank=True)
     comment = models.TextField('Diagram comments', blank=True)
 

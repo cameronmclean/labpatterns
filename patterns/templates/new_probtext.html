@@ -3,7 +3,8 @@
 		<title>Set the scene</title>
 	</head>
 	<body>
-		<h1> Describe the problem and set the scene </h1>
+		<h1> {{ request.session.new_pattern_name }} </h1>
+		<p> <img src="{{ MEDIA_URL }}{{ request.session.new_pattern_image }}"> </p>
 		<form enctype="multipart/form-data" method="POST" action="">
 				{{ formP.as_p }}
 				{{ formC.as_p }}

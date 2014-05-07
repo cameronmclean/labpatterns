@@ -21,9 +21,13 @@ def add_new_pattern_name(request):
 			newPatternInstance = form.save()
 			request.session['new_pattern_key'] = newPatternInstance.id
 			request.session['new_pattern_name'] = newPatternInstance.name
-	
-		return redirect('/newprobtext/')
+			request.session['new_pattern_image'] = str(newPatternInstance.pictogram)
 
+			return redirect('/newprobtext/')
+		else:
+			print form.errors
+	else:
+		form = NewPatternName()
 	return render(request, 'new_name.html', {'form':form})
 
 
@@ -45,6 +49,12 @@ def add_new_prob_and_context(request):
 			# save the objects into the db
 			newProblemInstance.save()
 			newContextInstance.save()	
-		return redirect('/')
-	
+			
+			return redirect('/')
+		else:
+			print formP.errors
+			print formC.errors
+	else:
+		formP = NewProblem()
+		formC = NewContext()
 	return render(request, 'new_probtext.html', {'formP':formP, 'formC':formC})
