@@ -458,3 +458,66 @@ https://docs.djangoproject.com/en/dev/topics/http/sessions/#topics-http-sessions
 eg use `newObject = form.save(commit=False)` and copy the various new pattern objects (models) to the session (server side db cache/cookie thing)
 Once the chain and revision/editing is complete, write (`.save()`) all the objects to the db proper?
 
+Ahh - but there is a problem - we dont get a primary key until the form/object is actuall saved in to the db.
+
+Phew -OK - bad me - made many chnages with granualr commits or notes...
+
+but - heres what I achieved/discovered today
+0. I ended up saving the first pattern name and pictogram into the db before moving on the rest - this was pretty much unavoidable because of the way I set up primary/foreign key relationships.
+
+1. use request.session to store arbitary data from views in a dict that can be accessed by other views/templates within the same browser session
+    to access session variables within a *template* - use `{{ request.session.<key_name> }}` note that <key_name> is accessed via . notation here, not by typical `request.session['key_name']` as you would for a view
+    #### note: i end up passing the image location and new name to the next page via session variales when it could in theory be retreived from the database. I chose this method so that each page a user is presented with depends on what they last entered, not what the last thing added to the db is....
+
+    note: also - to use request.session data in templates i needed to add the following to settings.py - note the `django.core.context_processors.request`
+    
+    ```
+    TEMPLATE_CONTEXT_PROCESSORS = (
+    "django.contrib.auth.context_processors.auth",
+    "django.core.context_processors.debug",
+    "django.core.context_processors.i18n",
+    "django.core.context_processors.media",
+    "django.core.context_processors.static",
+    "django.core.context_processors.tz",
+    "django.contrib.messages.context_processors.messages",
+    "django.core.context_processors.request",
+    )
+    ``` 
+
+
+2. changed model ImageFields to FileFields as imagefields do not support .svg (which we want)
+    used `python manage.py schemamigration patterns --auto` followed by `python manage.py migrate` to make the change
+
+3. had to figure out how to serve static, user-uplodaed image files - this was a pain 
+    i did the following based on some stackexchange answers
+    
+to settings.py add
+
+```
+MEDIA_ROOT = "/Users/cameronmclean/Projects/eclipse_workspace/labpatterns/pictograms/"
+MEDIA_URL = "/media/"
+```
+
+to urls.py add
+
+```
+url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT }),
+```
+
+then - in templates when we want to display an image (remember the db stores the path to the image)
+
+```
+<img src="{{ MEDIA_URL}}path_to_file.xtn">
+```
+
+in my case - i used the session variable in the template to call the most recently added pictogram on the next page
+the below renders the pattern name and pic entered on the last page to this new page 
+
+```
+<h1> {{ request.session.new_pattern_name }} </h1>
+<p> <img src="{{ MEDIA_URL }}{{ request.session.new_pattern_image }}"> </p>
+
+```
+
+#### Note: media paths for serving static files need sorting - currently django only looks in .../pictograms but differnt models put them in various locations....
+
