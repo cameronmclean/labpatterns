@@ -384,5 +384,54 @@ Next to learn the django way of using forms to add objects to the DB....
 - some prelim googleing suggests this is possible so will try for ModelForms for now.
 Benefits of using Django forms is the ease of vaidation, cleaning, error handling etc....
 
-  
+##### 20140507
+
+Alrighty - had much trouble getting modelforms to work with multiple fields for the DesignPattern model class.
+trying to have a form for name entry (text) and pictogram (fileupload)
+    Two important things I had to do.
+
+    1. pass `request.FILES` to the form in dajango views.
+    2. needed to add `enctype="multipart/form-data"` to the HTML template in the `<form>` attributes.
+
+views.py now looks like
+
+```
+def add_new_pattern_name(request):
+    form = NewPatternName()
+    if request.method == 'POST':
+        form = NewPatternName(request.POST, request.FILES)
+        if form.is_valid():
+            # model ImageField and modelForms field are causing validation errors. Need to declare the right type.. 
+            form.save()
+        
+        return redirect('/')
+
+    return render(request, 'new_name.html', {'form':form})
+```
+
+and new_name.html looks like
+
+```
+<html>
+    <head>
+        <title>Add a new design pattern</title>
+    </head>
+    <body>
+        <form enctype="multipart/form-data" method="POST" action="">
+            <table>
+                {{ form.as_table }}
+            </table>
+            <input type="submit" value="Submit">
+            {% csrf_token %}
+        </form> 
+    First web form goes here!
+    Hopefully there is a form above....
+    </body>
+</html>
+```
+
+I can now save a pattern name and pictogram to the database via the web form...
+
+NOTE: If pattern name is non-unique (i,e already exists - error passes silently, but the save to db does not occur)
+Need to deal with this shortly...
 
