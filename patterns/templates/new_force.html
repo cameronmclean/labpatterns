@@ -1,14 +1,18 @@
 <!DOCTYPE html>
 <html lang=en>
 	<head>
-		<title>Set the scene</title>
+		<title>Use the force!</title>
 	</head>
 	<body>
 		<h1> {{ request.session.new_pattern_name }} </h1>
 		<p> <img src="{{ MEDIA_URL }}{{ request.session.new_pattern_image }}"> </p>
 		<form enctype="multipart/form-data" method="POST" action="">
-				{{ formP.as_p }}
-				{{ formC.as_p }}
+				{{ formset.managemet_form }}
+				<table>
+					{% for form in formset %}
+					{{ form }}
+					{% endfor %}
+				</table>
 			<input type="submit" value="Submit">
 			{% csrf_token %}
 		</form> 

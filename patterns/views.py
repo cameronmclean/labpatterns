@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from patterns.forms import *
+from django.forms.models import modelformset_factory
 from patterns.models import *
 
 
@@ -72,16 +73,9 @@ def add_new_prob_and_context(request):
 			request.session['new_problem_id'] = newProblemInstance.id
 			request.session['new_context_id'] = newContextInstance.id
 
-			# flush the session dictonary so adding another pattern in during the same browser session wont overwrite the one we just added...
-			# this should come after the last form entry page.
-		#	request.session.flush()
-			del request.session['new_pattern_key']
-			del request.session['new_pattern_name']
-			del request.session['new_pattern_image']
-			del request.session['new_problem_id']
-			del request.session['new_context_id']
+	
 			
-			return redirect('/')
+			return redirect('/newforce/')
 		
 		#else:
 		#	print formP.errors
@@ -90,3 +84,41 @@ def add_new_prob_and_context(request):
 		formP = NewProblem()
 		formC = NewContext()
 	return render(request, 'new_probtext.html', {'formP':formP, 'formC':formC})
+
+
+def add_new_force(request):
+	ForceFormSet = modelformset_factory(Force, form=NewForce)
+	
+	if request.method == 'POST' :
+		# need to add check for formset existence here -TBD
+		if 'forces_added' in request.session:
+			formset = ForceFormSet(request.POST, request.FILES, queryset=Force.objects.get(parent_pattern=request.session['new_pattern_key']))
+		
+		else:
+			formset = ForceFormSet(request.POST, request.FILES, queryset=Force.objects.none())
+		
+		if formset.is_valid():
+			newForceInstances = formset.save(commit=False)
+			newForceInstacnes.parent_pattern = DesignPattern.objects.get(id = request.session['new_pattern_key'])
+
+			request.session['forces_added'] = True
+			request.session['new_force_id'] = newForceInstances.id
+
+			newForceInstances.save()
+
+					# flush the session dictonary so adding another pattern in during the same browser session wont overwrite the one we just added...
+			# this should come after the last form entry page.
+		#	request.session.flush()
+			del request.session['new_pattern_key']
+			del request.session['new_pattern_name']
+			del request.session['new_pattern_image']
+			del request.session['new_problem_id']
+			del request.session['new_context_id']
+			del request.session['new_force_id']
+			del request.session['forces_added']
+
+			return redirect('/')
+	else: 
+		formset = ForceFormSet()
+
+	return render(request, 'new_force.html', {'formset': formset})

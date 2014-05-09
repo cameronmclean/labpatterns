@@ -11,4 +11,9 @@ User stories
 
 # he clicks new pattern, and is presented with a clean page with two form fileds - One for the title of hte new pattern, and one to upload a picture.
 
-# after submittng a new name and picture, cam is presented with the next page to enter a pith problem description and a longer context description...
+# after submittng a new name and picture, cam is presented with the next page to enter a pithy problem description and a longer context description...
+# displayed on this page are now also the new pattern name and pic to give context and make it look flashy
+
+# after submitting the context and problem, cam is invited to add forces - he is redirected to a page with two force formsets, and the option to add additional forces
+
+ 
