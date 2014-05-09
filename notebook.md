@@ -460,7 +460,7 @@ Once the chain and revision/editing is complete, write (`.save()`) all the objec
 
 Ahh - but there is a problem - we dont get a primary key until the form/object is actuall saved in to the db.
 
-Phew -OK - bad me - made many chnages with granualr commits or notes...
+Phew -OK - bad me - made many chnages without granualr commits or notes...
 
 but - heres what I achieved/discovered today
 0. I ended up saving the first pattern name and pictogram into the db before moving on the rest - this was pretty much unavoidable because of the way I set up primary/foreign key relationships.
@@ -520,4 +520,43 @@ the below renders the pattern name and pic entered on the last page to this new 
 ```
 
 #### Note: media paths for serving static files need sorting - currently django only looks in .../pictograms but differnt models put them in various locations....
+
+
+##### 20140509
+
+dealing with the browser back button
+- So there is a problem if the user is halfway through the series of pages and clicks back button to edit a previous form.
+We need to keep the state and have django edit the instance of what was just added to the db rather than create a new one if one navigates back.
+
+I manage this by storing the recently added form into into a session variable, before loading a form we check to to see if the variabel exists - if it does, then load the form with the instance so that .save() will update it rather than create a new instance (this is how .save() works if handed an instance arguement). Ff a session variable (dict key) doesnt exist for this form - then just load as blank (i,e create new instance), and add the foreign key behind the scences from the info collected via the first form...
+ So - for the first page - adding a new pattern - name and pictogram - we have
+
+ ```
+ # The first page to add a new pattern - after successful form submision it should redirect to adding problem and context
+def add_new_pattern_name(request):
+    form = NewPatternName()
+    if request.method == 'POST':
+        # check to see if we have added a pattern in this session (i.e user has clicked back on browser - if so, load that pattern to update rather than create a new one)
+        # note we clear the session dictonary after the final form submission. 
+        if 'new_pattern_key' in request.session:
+            form = NewPatternName(request.POST, request.FILES, instance=DesignPattern.objects.get(id=request.session['new_pattern_key']))
+        else: 
+            form = NewPatternName(request.POST, request.FILES)
+        # if form is valid save it to a new object, and store the object contents in session dictonary
+        if form.is_valid():
+            newPatternInstance = form.save()
+            request.session['new_pattern_key'] = newPatternInstance.id
+            request.session['new_pattern_name'] = newPatternInstance.name
+            request.session['new_pattern_image'] = str(newPatternInstance.pictogram)
+
+            return redirect('/newprobtext/')
+
+          # print form.errors
+    else:
+        form = NewPatternName()
+    return render(request, 'new_name.html', {'form':form})
+```
+
+#### note: this strategy requires us to delete all the session keys after the final form submission.
+ 
 
