@@ -559,4 +559,75 @@ def add_new_pattern_name(request):
 
 #### note: this strategy requires us to delete all the session keys after the final form submission.
  
+Oakie - 
+Next up - added forms for forces.
+We want multiple forms on one page, and the ability to dynamically add/delete extra forms.
+tricky, but modelformset_factory seems to have it covered...
+halfway throuhg learning/implementing this thingy...
 
+one thing - the default for formset_factory is to query the model and present a form for each entry.... hmmm
+need to overide this with `AuthorFormSet(queryset=Author.objects.none())` ...
+
+
+##### 20140510
+
+getting modelformsets to work was a PITA.
+Mostly because I struggled to understand the documentation, and perhaps i'm doing thigns awkarly in my views/models/forms...
+
+BUT - finally got one single - force form using the modelforms_factory to work.
+##### note - it needs further testing - to see if the state and queryset is properly maintatined between pages.
+also - next is to hook it into javascript to get dynamic 'add another force' buttons and forms. this will really check the looping over formset and assiging the proper foreign key (parent pattern)...
+
+ALSO - side note - without thinking I had called a db table name "force" in my model - but of course this a reserved SQL word!!
+pretty dumb - but fixed now so that table = `pattern_force` south migrations made it a doddle to fix/
+*also note* that i needed to change the Meta details, not the class (model) name... as i'm using custom db table names....
+
+```
+class Force(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField('Name', unique=True, max_length=255)
+    parent_pattern = models.ForeignKey(DesignPattern)
+    pictogram = models.FileField('Force Pictogram', upload_to='pictograms')
+    description = models.TextField('Description', blank=True)
+    
+    def __unicode__(self):
+        return self.parent_pattern.name
+
+    class Meta:
+        db_table = 'pattern_force'
+```
+
+Back to the modelforms - getting at instances/objects for each form and setting the primark key (via the session variable) was eventaully done like this....
+
+```
+def add_new_force(request):
+    ForceFormSet = modelformset_factory(Force, form=NewForce, can_delete=True)
+    data = {
+        'form-TOTAL_FORMS': '1',
+        'form-INITIAL_FORMS': '0',
+        'form-MAX_NUM_FORMS': '',
+    }
+    if request.method == 'POST' :
+        
+        if 'forces_added' in request.session:
+            formset = ForceFormSet(request.POST, request.FILES, data, queryset=Force.objects.get(parent_pattern=request.session['new_pattern_key']))
+        
+        else:
+            formset = ForceFormSet(request.POST, request.FILES, data, queryset=Force.objects.none())
+        
+        if formset.is_valid():
+            for form in formset.forms:
+                newInstance = form.save(commit=False)
+                newInstance.parent_pattern = DesignPattern.objects.get(id = request.session['new_pattern_key'])
+                print dir(newInstance)
+                print newInstance.description
+                print newInstance.parent_pattern_id
+                newInstance.save()  
+#... and so on...
+```
+
+###NOTE - moving the `data` dict order in the ForeFormSet() call made all the difference - I had to make it come *after* request.POST and request.FILES or else the .save() doesn't work and saves an ampty string each time, which threw a DB integrity error (non-unique 'name' key) the second time through adding new pattern/forces....
+
+OK - enough for now.
+
+Play with dynamci adding/removing forms next...

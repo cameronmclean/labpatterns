@@ -70,7 +70,7 @@ class Force(models.Model):
         return self.parent_pattern.name
 
     class Meta:
-        db_table = 'force'
+        db_table = 'pattern_force'
 
         
 class Rationale(models.Model):

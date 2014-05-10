@@ -87,24 +87,33 @@ def add_new_prob_and_context(request):
 
 
 def add_new_force(request):
-	ForceFormSet = modelformset_factory(Force, form=NewForce)
-	
+	ForceFormSet = modelformset_factory(Force, form=NewForce, can_delete=True)
+	data = {
+		'form-TOTAL_FORMS': '1',
+		'form-INITIAL_FORMS': '0',
+		'form-MAX_NUM_FORMS': '',
+	}
 	if request.method == 'POST' :
-		# need to add check for formset existence here -TBD
+		
 		if 'forces_added' in request.session:
-			formset = ForceFormSet(request.POST, request.FILES, queryset=Force.objects.get(parent_pattern=request.session['new_pattern_key']))
+			formset = ForceFormSet(request.POST, request.FILES, data, queryset=Force.objects.get(parent_pattern=request.session['new_pattern_key']))
 		
 		else:
-			formset = ForceFormSet(request.POST, request.FILES, queryset=Force.objects.none())
+			formset = ForceFormSet(request.POST, request.FILES, data, queryset=Force.objects.none())
 		
 		if formset.is_valid():
-			newForceInstances = formset.save(commit=False)
-			newForceInstacnes.parent_pattern = DesignPattern.objects.get(id = request.session['new_pattern_key'])
-
+			for form in formset.forms:
+				newInstance = form.save(commit=False)
+				newInstance.parent_pattern = DesignPattern.objects.get(id = request.session['new_pattern_key'])
+				print dir(newInstance)
+				print newInstance.description
+				print newInstance.parent_pattern_id
+				newInstance.save()	
+								
 			request.session['forces_added'] = True
-			request.session['new_force_id'] = newForceInstances.id
+#			request.session['new_force_id'] = newForceInstances.id
 
-			newForceInstances.save()
+#			newForceInstances.save()
 
 					# flush the session dictonary so adding another pattern in during the same browser session wont overwrite the one we just added...
 			# this should come after the last form entry page.
@@ -114,11 +123,11 @@ def add_new_force(request):
 			del request.session['new_pattern_image']
 			del request.session['new_problem_id']
 			del request.session['new_context_id']
-			del request.session['new_force_id']
+		#	del request.session['new_force_id']
 			del request.session['forces_added']
 
 			return redirect('/')
 	else: 
-		formset = ForceFormSet()
+		formset = ForceFormSet(queryset=Force.objects.none())
 
 	return render(request, 'new_force.html', {'formset': formset})
