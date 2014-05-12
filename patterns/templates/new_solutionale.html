@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang=en>
+	<head>
+		<title>Set the scene</title>
+		<link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}base.css">
+	</head>
+	<body>
+		<h1> {{ request.session.new_pattern_name }} </h1>
+		<p> <img src="{{ MEDIA_URL }}{{ request.session.new_pattern_image }}"> </p>
+		<form enctype="multipart/form-data" method="POST" action="">
+				{{ formS.as_p }}
+				{{ formR.as_p }}
+			<input type="submit" value="Submit">
+			{% csrf_token %}
+		</form> 
+	</body>
+</html>

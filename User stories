@@ -14,5 +14,8 @@ User stories
 # after submittng a new name and picture, cam is presented with the next page to enter a pithy problem description and a longer context description...
 # displayed on this page are now also the new pattern name and pic to give context and make it look flashy
 
-# after submitting the context and problem, cam is invited to add forces - he is redirected to a page with a blank modelformset with fields to add a force. There are two buttons at the bottom - "I'm done adding forces" and "Save and add another force". With each save and add another force, the data is saved to the DB and a list of all entered forced for the patter so far are displayed/updated. 
+# after submitting the context and problem, cam is invited to add forces - he is redirected to a page with a blank modelformset with fields to add a force. There is initiall only one form, but there are buttons to dynamically add or remove new force instances. There is one big submit button at the end.
+
+
+#Afer adding all the forces, cam is directed to the nect page wich invites him to enter a pithy solution description, along with a longer section to describe the rationale. 
  

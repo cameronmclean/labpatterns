@@ -13,5 +13,6 @@ urlpatterns = patterns('',
     url(r'^new/$', 'patterns.views.add_new_pattern_name', name='new_name'),
     url(r'^newprobtext/$', 'patterns.views.add_new_prob_and_context', name='new_probtext'),
     url(r'^newforce/$', 'patterns.views.add_new_force', name="new_force"),
+    url(r'^newsolutionale/$', 'patterns.views.add_new_solution', name='new_solution'),
     url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT }),
 )

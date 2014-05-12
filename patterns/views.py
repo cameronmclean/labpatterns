@@ -105,17 +105,59 @@ def add_new_force(request):
 			for form in formset.forms:
 				newInstance = form.save(commit=False)
 				newInstance.parent_pattern = DesignPattern.objects.get(id = request.session['new_pattern_key'])
-				print dir(newInstance)
-				print newInstance.description
-				print newInstance.parent_pattern_id
+		#		print dir(newInstance)
+		#		print newInstance.description
+		#		print newInstance.parent_pattern_id
 				newInstance.save()	
 								
 			request.session['forces_added'] = True
-#			request.session['new_force_id'] = newForceInstances.id
 
-#			newForceInstances.save()
+			return redirect('/newsolutionale/')
+	else: 
+		formset = ForceFormSet(queryset=Force.objects.none())
 
-					# flush the session dictonary so adding another pattern in during the same browser session wont overwrite the one we just added...
+	return render(request, 'new_force.html', {'formset': formset})
+
+
+
+
+def add_new_solution(request):
+	if request.method == 'POST':
+		#check to see if we have filled out this form already in this session
+		if 'new_solution_id' in request.session:
+			formS = NewSolution(request.POST, instance=Solution.objects.get(id=request.session['new_solution_id'])) 
+		else:
+			formS = NewSolution(request.POST)
+
+		if 'new_rationale_id' in request.session:
+			formR = NewRationale(request.POST, instance=Rationale.objects.get(id=request.session['new_ratioanle_id']))
+		else:
+			formR = NewRationale(request.POST)
+
+
+		if formS.is_valid() and formR.is_valid():
+			# save form to object
+			newSolutionInstance = formS.save(commit=False)
+			newRationaleInstance = formR.save(commit=False)
+			# give the object the last created pattern ID key
+			newSolutionInstance.parent_pattern = DesignPattern.objects.get(id = request.session['new_pattern_key'])
+			newRationaleInstance.parent_pattern = DesignPattern.objects.get(id = request.session['new_pattern_key'])
+
+			# save the objects into the db
+			newSolutionInstance.save()
+			newRationaleInstance.save()	
+
+			print newSolutionInstance.parent_pattern.id
+			print newRationaleInstance.parent_pattern.id
+			print newSolutionInstance.id
+			print newRationaleInstance.id
+
+			#put the just added info into a session variable 
+			request.session['new_solution_id'] = newSolutionInstance.id
+			request.session['new_rationale_id'] = newRationaleInstance.id
+
+
+			# flush the session dictonary so adding another pattern in during the same browser session wont overwrite the one we just added...
 			# this should come after the last form entry page.
 		#	request.session.flush()
 			del request.session['new_pattern_key']
@@ -123,11 +165,22 @@ def add_new_force(request):
 			del request.session['new_pattern_image']
 			del request.session['new_problem_id']
 			del request.session['new_context_id']
-		#	del request.session['new_force_id']
+		#   del request.session['new_force_id']
 			del request.session['forces_added']
-
+			del request.session['new_solution_id']
+			del request.session['new_rationale_id']
+	
+			
 			return redirect('/')
-	else: 
-		formset = ForceFormSet(queryset=Force.objects.none())
 
-	return render(request, 'new_force.html', {'formset': formset})
+		else: 
+			print formS.errors
+			print formR.errors
+		
+	else:
+		formS = NewSolution()
+		formR = NewRationale()
+
+
+	return render(request, 'new_solutionale.html', {'formS':formS, 'formR':formR})
+
