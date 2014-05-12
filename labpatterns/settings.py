@@ -102,5 +102,5 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-MEDIA_ROOT = "/Users/cameronmclean/Projects/eclipse_workspace/labpatterns/pictograms/"
+MEDIA_ROOT = "/Users/cameronmclean/Projects/eclipse_workspace/labpatterns/media/"
 MEDIA_URL = "/media/"

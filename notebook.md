@@ -597,7 +597,7 @@ class Force(models.Model):
         db_table = 'pattern_force'
 ```
 
-Back to the modelforms - getting at instances/objects for each form and setting the primark key (via the session variable) was eventaully done like this....
+Back to the modelforms - getting at instances/objects for each form and setting the primary key (via the session variable) was eventaully done like this....
 
 ```
 def add_new_force(request):
