@@ -3,17 +3,36 @@
 	<head>
 		<title>Use the force!</title>
 		<link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}base.css">
+		<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery-1.11.1.min.js"></script>
+		<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.formset.js"></script>
+	<!--	<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.formset.min.js"></script> !-->
+		
 	</head>
 	<body>
 		<h1> {{ request.session.new_pattern_name }} </h1>
 		<p> <img src="{{ MEDIA_URL }}{{ request.session.new_pattern_image }}"> </p>
-		<form enctype="multipart/form-data" method="POST" action="">
-					{{ formset.management_form }}
-					{% for form in formset %}
-					{{ form.as_p }}
-					{% endfor %}
+		<form id="newForce" enctype="multipart/form-data" method="POST" action="">
+			<div>
+				{% for form in formset %}
+				<p>
+					{{ form }}
+				</p>
+				{% endfor %}
+			</div>
 			<input type="submit" value="Submit">
 			{% csrf_token %}
+			{{ formset.management_form }}
+					
 		</form> 
+		<!-- this is the script to add another or remove an instance of the force formset.
+		it uses a jQuery selector to select the form with #id newForce, and operates over the div element. 
+		it doesnt seem to matter (for now! if i select just the <div> or the <p> within the <div> element. 
+		difference is wheter it will be important later to incude the for loop or not. !-->
+		<script type="text/javascript"> 
+		$(function() {
+			$('#newForce div p').formset();
+		})
+		</script>
+
 	</body>
 </html>

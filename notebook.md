@@ -631,3 +631,69 @@ def add_new_force(request):
 OK - enough for now.
 
 Play with dynamci adding/removing forms next...
+
+
+##### 20140512
+
+Dynamically adding force modelformset from the client side using javascript.
+Not so easy to understand.
+Ended up using this
+http://blog.stanisla.us/2009/11/30/django-dynamic-formset-v1-1-released/
+https://github.com/elo80ka/django-dynamic-formset
+
+I cloned and copied the .js to .../labpatterns/media/js
+also downloaded and copied in the lastest jQuery library http://jquery.com/download/ (v 1.11.1)
+
+In the template needed to reference the js in the `<head>` as so...
+
+```
+<!DOCTYPE html>
+<html lang=en>
+    <head>
+        <title>Use the force!</title>
+        <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}base.css">
+        <script type="text/javascript" src="{{ MEDIA_URL }}js/jquery-1.11.1.min.js"></script>
+        <script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.formset.js"></script>
+        
+    </head>
+```
+
+Then - modified the template for the form as so...
+
+```
+<body>
+        <h1> {{ request.session.new_pattern_name }} </h1>
+        <p> <img src="{{ MEDIA_URL }}{{ request.session.new_pattern_image }}"> </p>
+        <form id="newForce" enctype="multipart/form-data" method="POST" action="">
+            <div>
+                {% for form in formset %}
+                <p>
+                    {{ form }}
+                </p>
+                {% endfor %}
+            </div>
+            <input type="submit" value="Submit">
+            {% csrf_token %}
+            {{ formset.management_form }}
+                    
+        </form> 
+        <!-- this is the script to add another or remove an instance of the force formset.
+        it uses a jQuery selector to select the form with #id newForce, and operates over the div element. 
+        it doesnt seem to matter (for now! if i select just the <div> or the <p> within the <div> element. 
+        difference is wheter it will be important later to incude the for loop or not. !-->
+        <script type="text/javascript"> 
+        $(function() {
+            $('#newForce div p').formset();
+        })
+        </script>
+
+    </body>
+```
+NOTE: - needed to add the `id='newForce'` attribute to the `<form>` element so the jQuery selecter can find it.
+NOT sure about whether the js call should select before or after the for loop in the template - both seem to work for now...
+ALSO - will need to figure out how to dynamically CSS style the add/remove links - they are functional for now, but ugly.
+
+But all good - seems to be working.
+NEXT is figure out how to keep the state / deal with the back button - this could be a major PITA... we'll see.
+(note note : if dynamic forms and back browser back button is  pain - can try adding forces one at a time, with I'm done and save and add another buttons - using only Http functions...)
+
