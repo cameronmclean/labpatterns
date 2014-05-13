@@ -720,5 +720,62 @@ Perhaps forcing a page refresh on back is symptonmatic of larger flaws in my sit
 This may well be true, but for now - it's definately good enough.
 ALSO - the same ideas I've been using to manage editing of exisitng forms on browser back can be reused to edit instances later on in the site design/evolution.
 
+OK - back button issues with adding forced wasnt quite fixed.
+When user hits back, the correct data is populated and edited, but also an extra blank form is added.
+If not used this was storing a blank force in the db - bad.
+Also - third time around or a second session - the blank force already exists and throws a db integrity error as cant have two forces with the same name.
 
+Now modified the code to set modelfform_factory(extra=0) if reloading - this code comes before the if request.method == 'POST' (at the bottom)
+but i have duplicated it again inside the first if - left it there from debugging - doesnt seem to do any harm but this is obviously a bad code smell and i'm doing something wrong....
+
+But anyhoo - it works for now...
+
+```
+def add_new_force(request):
+    ForceFormSet = modelformset_factory(Force, form=NewForce, can_delete=False)
+    data = {
+        'form-TOTAL_FORMS': '1',
+        'form-INITIAL_FORMS': '0',
+        'form-MAX_NUM_FORMS': '',
+    }
+    if request.method == 'POST' :
+
+        if 'forces_added' in request.session:
+            ForceFormSet = modelformset_factory(Force, form=NewForce, can_delete=False, extra=0)
+            data['form-TOTAL_FORMS'] = Force.objects.filter(parent_pattern=request.session['new_pattern_key']).count()
+            initialForms = Force.objects.filter(parent_pattern=request.session['new_pattern_key'])
+            print data['form-TOTAL_FORMS']
+            print initialForms
+            formset = ForceFormSet(request.POST, request.FILES, data, queryset=initialForms)
+        
+
+        else:
+            formset = ForceFormSet(request.POST, request.FILES, data, queryset=Force.objects.none())
+        
+        if formset.is_valid():
+            for form in formset.forms:
+                newInstance = form.save(commit=False)
+                newInstance.parent_pattern = DesignPattern.objects.get(id=request.session['new_pattern_key'])
+        #       print dir(newInstance)
+        #       print newInstance.description
+        #       print newInstance.parent_pattern_id
+                newInstance.save()  
+                                
+            request.session['forces_added'] = True
+
+            return redirect('/newsolutionale/')
+    else: 
+        if 'forces_added' in request.session:
+            ForceFormSet = modelformset_factory(Force, form=NewForce, can_delete=False, extra=0) # dont display extra forms if user hits back button
+            data['form-TOTAL_FORMS'] = Force.objects.filter(parent_pattern=request.session['new_pattern_key']).count()
+            initialForms = Force.objects.filter(parent_pattern=request.session['new_pattern_key'])
+            print data['form-TOTAL_FORMS']
+            print initialForms
+            formset = ForceFormSet(queryset=initialForms)
+        
+        else:
+            formset = ForceFormSet(queryset=Force.objects.none())
+
+    return render(request, 'new_force.html', {'formset': formset})
+```
 

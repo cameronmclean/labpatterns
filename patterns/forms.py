@@ -6,7 +6,7 @@ class NewPatternName(ModelForm):
 	class Meta:
 		model = DesignPattern 
 		fields = ['name', 'pictogram']
-		widgets = { 'name': TextInput(attrs={'placeholder': 'Enter a pretentious soundign name for the pattern'})
+		widgets = { 'name': TextInput(attrs={'placeholder': 'Enter a pretentious sounding name for the pattern'})
 		}
 
 class NewProblem(ModelForm):

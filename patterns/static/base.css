@@ -43,6 +43,10 @@ color: #000000;
  padding-bottom: 6px;
 }
 
+input[type=text]:hover {
+	background: #ffffff;
+}
+
 label {
 	font-size: 20px;
  	font-family: 'OpenSans' ;
@@ -62,4 +66,8 @@ input[type=submit]{
  background: #f8bac4 ;
  border-radius: 5px; 
 
+}
+
+input[type=submit]:hover{
+	background: #fc7e5b ;
 }

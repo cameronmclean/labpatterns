@@ -17,5 +17,7 @@ User stories
 # after submitting the context and problem, cam is invited to add forces - he is redirected to a page with a blank modelformset with fields to add a force. There is initiall only one form, but there are buttons to dynamically add or remove new force instances. There is one big submit button at the end.
 
 
-#Afer adding all the forces, cam is directed to the nect page wich invites him to enter a pithy solution description, along with a longer section to describe the rationale. 
+#Afer adding all the forces, cam is directed to the next page wich invites him to enter a pithy solution description, along with a longer section to describe the rationale. 
  
+# following the entry of Solution and rationale descriptions, Cam is invited to upload an optional diagram that summarises the solution, and add references for known examples/evidence of where the pattern exists.
+
