@@ -5,10 +5,10 @@
 		<link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}base.css">
 		<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery-1.11.1.min.js"></script>
 		<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.formset.js"></script>
-	<!--	<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.formset.min.js"></script> !-->
+		<!-- <meta http-equiv="Cache-Control" content="no-store" />    - now handled by onunload below !-->
 		
 	</head>
-	<body>
+	<body onunload=""> <!-- onunload forces page reload if back button in browser is pressed  - need to repopualte forces from db !-->
 		<h1> {{ request.session.new_pattern_name }} </h1>
 		<p> <img src="{{ MEDIA_URL }}{{ request.session.new_pattern_image }}"> </p>
 		<form id="newForce" enctype="multipart/form-data" method="POST" action="">

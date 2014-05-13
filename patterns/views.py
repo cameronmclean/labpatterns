@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from patterns.forms import *
 from django.forms.models import modelformset_factory
 from patterns.models import *
+from django.views.decorators.cache import cache_control
 
 
 # Create your views here.
@@ -86,6 +87,7 @@ def add_new_prob_and_context(request):
 	return render(request, 'new_probtext.html', {'formP':formP, 'formC':formC})
 
 
+#@cache_control(no_cache=True, must_revalidate=True) - no longer needed - solved via template <body onunload="">
 def add_new_force(request):
 	ForceFormSet = modelformset_factory(Force, form=NewForce, can_delete=True)
 	data = {
@@ -94,17 +96,22 @@ def add_new_force(request):
 		'form-MAX_NUM_FORMS': '',
 	}
 	if request.method == 'POST' :
-		
+
 		if 'forces_added' in request.session:
-			formset = ForceFormSet(request.POST, request.FILES, data, queryset=Force.objects.get(parent_pattern=request.session['new_pattern_key']))
+			data['form-TOTAL_FORMS'] = Force.objects.filter(parent_pattern=request.session['new_pattern_key']).count()
+			initialForms = Force.objects.filter(parent_pattern=request.session['new_pattern_key'])
+			print data['form-TOTAL_FORMS']
+			print initialForms
+			formset = ForceFormSet(request.POST, request.FILES, data, queryset=initialForms)
 		
+
 		else:
 			formset = ForceFormSet(request.POST, request.FILES, data, queryset=Force.objects.none())
 		
 		if formset.is_valid():
 			for form in formset.forms:
 				newInstance = form.save(commit=False)
-				newInstance.parent_pattern = DesignPattern.objects.get(id = request.session['new_pattern_key'])
+				newInstance.parent_pattern = DesignPattern.objects.get(id=request.session['new_pattern_key'])
 		#		print dir(newInstance)
 		#		print newInstance.description
 		#		print newInstance.parent_pattern_id
@@ -114,7 +121,15 @@ def add_new_force(request):
 
 			return redirect('/newsolutionale/')
 	else: 
-		formset = ForceFormSet(queryset=Force.objects.none())
+		if 'forces_added' in request.session:
+			data['form-TOTAL_FORMS'] = Force.objects.filter(parent_pattern=request.session['new_pattern_key']).count()
+			initialForms = Force.objects.filter(parent_pattern=request.session['new_pattern_key'])
+			print data['form-TOTAL_FORMS']
+			print initialForms
+			formset = ForceFormSet(queryset=initialForms)
+		
+		else:
+			formset = ForceFormSet(queryset=Force.objects.none())
 
 	return render(request, 'new_force.html', {'formset': formset})
 
@@ -147,44 +162,29 @@ def add_new_solution(request):
 			# save the objects into the db
 			newSolutionInstance.save()
 			newRationaleInstance.save()
-			print formS.errors
-			print formR.errors	
-			print dir(newSolutionInstance)
-			print dir(newRationaleInstance)
-			print newSolutionInstance.unique_error_message
-			print newRationaleInstance.unique_error_message
-			print newSolutionInstance.parent_pattern.id
-			print newRationaleInstance.parent_pattern.id
-			print newSolutionInstance.id
-			print newRationaleInstance.id
-			print newSolutionInstance.pk 
-			print newRationaleInstance.pk
+
 
 			#put the just added info into a session variable 
 			request.session['new_solution_id'] = newSolutionInstance.id
 			request.session['new_rationale_id'] = newRationaleInstance.id
 
-			return redirect('/')
-
-		else:
-			#form is not valid
-			return render(request, 'new_solutionale.html', {'formS':formS, 'formR':formR})
-
+			
+		
 			# flush the session dictonary so adding another pattern in during the same browser session wont overwrite the one we just added...
 			# this should come after the last form entry page.
-		#	request.session.flush()
-#			del request.session['new_pattern_key']
-#			del request.session['new_pattern_name']
-#			del request.session['new_pattern_image']
-#			del request.session['new_problem_id']
-#			del request.session['new_context_id']
-		#   del request.session['new_force_id']
-#			del request.session['forces_added']
-#			del request.session['new_solution_id']
-#			del request.session['new_rationale_id']
+		#	request.session.flush()			
+			del request.session['new_pattern_key']
+			del request.session['new_pattern_name']
+			del request.session['new_pattern_image']
+			del request.session['new_problem_id']
+			del request.session['new_context_id']
+		#	del request.session['new_force_id']
+			del request.session['forces_added']
+			del request.session['new_solution_id']
+			del request.session['new_rationale_id']
 	
 			
-		#	return redirect('/')
+			return redirect('/')
 
 	else:
 		formS = NewSolution()
