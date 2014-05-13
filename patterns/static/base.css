@@ -22,3 +22,44 @@ p {
 a {
 	color: #dea8d8;
 }
+
+.button_holder {
+	text-align: center;
+}
+
+input[type=text] {
+color: #000000;
+ font-size: 16px;
+ font-family: 'OpenSans' ;
+ width: 405px;
+ height: 25px;
+ border: none;
+ margin: 0;
+ border-radius: 5px; 
+ background: #fddf95;
+ border: none;
+ padding-left: 13px;
+ padding-top: 6px;
+ padding-bottom: 6px;
+}
+
+label {
+	font-size: 20px;
+ 	font-family: 'OpenSans' ;
+}
+
+input[type=submit]{
+ color: #000000;
+ font-size: 16px;
+ font-family: 'OpenSans' ;
+ width: 105px;
+ height: 30px;
+ border: none;
+ margin: 0 auto;
+ margin-left: 0;
+ margin-right: 0;
+ padding: 0;
+ background: #f8bac4 ;
+ border-radius: 5px; 
+
+}

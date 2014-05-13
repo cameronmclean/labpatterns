@@ -89,7 +89,7 @@ def add_new_prob_and_context(request):
 
 #@cache_control(no_cache=True, must_revalidate=True) - no longer needed - solved via template <body onunload="">
 def add_new_force(request):
-	ForceFormSet = modelformset_factory(Force, form=NewForce, can_delete=True)
+	ForceFormSet = modelformset_factory(Force, form=NewForce, can_delete=False)
 	data = {
 		'form-TOTAL_FORMS': '1',
 		'form-INITIAL_FORMS': '0',
@@ -98,6 +98,7 @@ def add_new_force(request):
 	if request.method == 'POST' :
 
 		if 'forces_added' in request.session:
+			ForceFormSet = modelformset_factory(Force, form=NewForce, can_delete=False, extra=0)
 			data['form-TOTAL_FORMS'] = Force.objects.filter(parent_pattern=request.session['new_pattern_key']).count()
 			initialForms = Force.objects.filter(parent_pattern=request.session['new_pattern_key'])
 			print data['form-TOTAL_FORMS']
@@ -122,6 +123,7 @@ def add_new_force(request):
 			return redirect('/newsolutionale/')
 	else: 
 		if 'forces_added' in request.session:
+			ForceFormSet = modelformset_factory(Force, form=NewForce, can_delete=False, extra=0) # dont display extra forms if user hits back button
 			data['form-TOTAL_FORMS'] = Force.objects.filter(parent_pattern=request.session['new_pattern_key']).count()
 			initialForms = Force.objects.filter(parent_pattern=request.session['new_pattern_key'])
 			print data['form-TOTAL_FORMS']

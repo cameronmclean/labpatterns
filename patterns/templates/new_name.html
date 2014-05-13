@@ -7,10 +7,10 @@
 	<body>
 		<h1> Let's add a new pattern! </h1>
 		<form enctype="multipart/form-data" method="POST" action="">
-			<table>
-				{{ form.as_table }}
-			</table>
-			<input type="submit" value="Submit">
+				{{ form.as_p }}
+			<div class="button_holder">
+				<input type="submit" value="Submit">
+			</div>
 			{% csrf_token %}
 		</form> 
 	</body>
