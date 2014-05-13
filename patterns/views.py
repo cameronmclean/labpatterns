@@ -143,40 +143,49 @@ def add_new_solution(request):
 			newSolutionInstance.parent_pattern = DesignPattern.objects.get(id = request.session['new_pattern_key'])
 			newRationaleInstance.parent_pattern = DesignPattern.objects.get(id = request.session['new_pattern_key'])
 
+
 			# save the objects into the db
 			newSolutionInstance.save()
-			newRationaleInstance.save()	
-
+			newRationaleInstance.save()
+			print formS.errors
+			print formR.errors	
+			print dir(newSolutionInstance)
+			print dir(newRationaleInstance)
+			print newSolutionInstance.unique_error_message
+			print newRationaleInstance.unique_error_message
 			print newSolutionInstance.parent_pattern.id
 			print newRationaleInstance.parent_pattern.id
 			print newSolutionInstance.id
 			print newRationaleInstance.id
+			print newSolutionInstance.pk 
+			print newRationaleInstance.pk
 
 			#put the just added info into a session variable 
 			request.session['new_solution_id'] = newSolutionInstance.id
 			request.session['new_rationale_id'] = newRationaleInstance.id
 
+			return redirect('/')
+
+		else:
+			#form is not valid
+			return render(request, 'new_solutionale.html', {'formS':formS, 'formR':formR})
 
 			# flush the session dictonary so adding another pattern in during the same browser session wont overwrite the one we just added...
 			# this should come after the last form entry page.
 		#	request.session.flush()
-			del request.session['new_pattern_key']
-			del request.session['new_pattern_name']
-			del request.session['new_pattern_image']
-			del request.session['new_problem_id']
-			del request.session['new_context_id']
+#			del request.session['new_pattern_key']
+#			del request.session['new_pattern_name']
+#			del request.session['new_pattern_image']
+#			del request.session['new_problem_id']
+#			del request.session['new_context_id']
 		#   del request.session['new_force_id']
-			del request.session['forces_added']
-			del request.session['new_solution_id']
-			del request.session['new_rationale_id']
+#			del request.session['forces_added']
+#			del request.session['new_solution_id']
+#			del request.session['new_rationale_id']
 	
 			
-			return redirect('/')
+		#	return redirect('/')
 
-		else: 
-			print formS.errors
-			print formR.errors
-		
 	else:
 		formS = NewSolution()
 		formR = NewRationale()

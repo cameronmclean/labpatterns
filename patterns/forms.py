@@ -35,14 +35,14 @@ class NewForce(ModelForm):
 
 class NewSolution(ModelForm):
 	class Meta:
-		model = Problem 
+		model = Solution 
 		fields = ['description']
 		widgets = { 'description': TextInput(attrs={'placeholder': 'Enter a pithy description of the solution'})
 		}
 
 class NewRationale(ModelForm):
 	class Meta:
-		model = Context 
+		model = Rationale 
 		fields = ['description']
 		widgets = { 'description': TextInput(attrs={'placeholder': 'Enter a detailed description of the rationale which justifies the solution'})
 		}

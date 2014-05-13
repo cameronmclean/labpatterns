@@ -519,7 +519,7 @@ the below renders the pattern name and pic entered on the last page to this new 
 
 ```
 
-#### Note: media paths for serving static files need sorting - currently django only looks in .../pictograms but differnt models put them in various locations....
+#### Note: media paths for serving static files need sorting - currently django only looks in .../pictograms but differnt models put them in various locations.... <note > now changed 20140512- all media is now in ...labpatterns/media/  with subdirs for js, pictograms, diagrams etc...
 
 
 ##### 20140509
@@ -528,7 +528,7 @@ dealing with the browser back button
 - So there is a problem if the user is halfway through the series of pages and clicks back button to edit a previous form.
 We need to keep the state and have django edit the instance of what was just added to the db rather than create a new one if one navigates back.
 
-I manage this by storing the recently added form into into a session variable, before loading a form we check to to see if the variabel exists - if it does, then load the form with the instance so that .save() will update it rather than create a new instance (this is how .save() works if handed an instance arguement). Ff a session variable (dict key) doesnt exist for this form - then just load as blank (i,e create new instance), and add the foreign key behind the scences from the info collected via the first form...
+I manage this by storing the recently added form into into a session variable, before loading a form we check to to see if the variable exists - if it does, then load the form with the instance so that .save() will update it rather than create a new instance (this is how .save() works if handed an instance arguement). Ff a session variable (dict key) doesnt exist for this form - then just load as blank (i,e create new instance), and add the foreign key behind the scences from the info collected via the first form...
  So - for the first page - adding a new pattern - name and pictogram - we have
 
  ```
@@ -696,4 +696,12 @@ ALSO - will need to figure out how to dynamically CSS style the add/remove links
 But all good - seems to be working.
 NEXT is figure out how to keep the state / deal with the back button - this could be a major PITA... we'll see.
 (note note : if dynamic forms and back browser back button is  pain - can try adding forces one at a time, with I'm done and save and add another buttons - using only Http functions...)
+
+##### 20140513
+
+Added Solution and Rationale views, urls, forms, template.
+HAd heaps of trouble getting it to save to the db - because I copied the code from the Problem/context forms - AND FORGOT TO CHANGE THE MODELFORM to use the right model!
+Duh!
+Anyho workingnow...
+
 
