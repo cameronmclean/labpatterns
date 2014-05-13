@@ -704,4 +704,21 @@ HAd heaps of trouble getting it to save to the db - because I copied the code fr
 Duh!
 Anyho workingnow...
 
+Forces page - troube getting the forms to repopulate and load instance if browser back button is pressed.
+This is because Firefox back button stores/caches pages itself and "back" returns you to the previous page in exactly the state you left it.
+i.e it doesnt do a GET or reload. But i need it to do this properly reload all the form instances with the previously saved force data.
+Otehrwise the forms are re-submitted as "new" forms/instances leading to extra (incorrect) froces being added to the pattern and db.
+Tried many things
+- decorating the add_forces view with
+`@cache_control`
+adding `<meta http-equiv="Cache-Control" content="no-store" />`
+None of these worked...
+What did work - at least for firefix is adding
+`<body onunload="">` to the newforce.html template.
+
+Perhaps forcing a page refresh on back is symptonmatic of larger flaws in my site nativation/flow design.
+This may well be true, but for now - it's definately good enough.
+ALSO - the same ideas I've been using to manage editing of exisitng forms on browser back can be reused to edit instances later on in the site design/evolution.
+
+
 
