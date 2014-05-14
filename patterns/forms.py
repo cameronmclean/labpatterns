@@ -13,6 +13,8 @@ class NewProblem(ModelForm):
 	class Meta:
 		model = Problem 
 		fields = ['description']
+		labels = { 'description': 'Problem Description',
+		}
 		widgets = { 'description': TextInput(attrs={'placeholder': 'Enter a pithy description of the problem'})
 		}
 
@@ -20,6 +22,8 @@ class NewContext(ModelForm):
 	class Meta:
 		model = Context 
 		fields = ['description']
+		labels = { 'description': 'Context',
+		}
 		widgets = { 'description': TextInput(attrs={'placeholder': 'Enter a detailed description of the context in which this problem occurs'})
 		}
 
@@ -28,7 +32,9 @@ class NewForce(ModelForm):
 	class Meta:
 		model = Force 
 		fields = ['name', 'description', 'pictogram']
-		widgets = { 'description': TextInput(attrs={'placeholder': 'Enter a definition for this force - be as specific as the pattern allows'}),
+		labels = { 'name': 'Force', 'description': 'Definition',
+		}
+		widgets = { 'description': TextInput(attrs={'placeholder': 'Enter a definition for this force term - be as specific as the pattern allows'}),
 					'name': TextInput(attrs={'placeholder': 'Enter a term to name this force'})
 
 		}
@@ -37,6 +43,8 @@ class NewSolution(ModelForm):
 	class Meta:
 		model = Solution 
 		fields = ['description']
+		labels = { 'description': 'Solution Description',
+		}
 		widgets = { 'description': TextInput(attrs={'placeholder': 'Enter a pithy description of the solution'})
 		}
 
@@ -44,5 +52,7 @@ class NewRationale(ModelForm):
 	class Meta:
 		model = Rationale 
 		fields = ['description']
+		labels = { 'description': 'Rationale',
+		}
 		widgets = { 'description': TextInput(attrs={'placeholder': 'Enter a detailed description of the rationale which justifies the solution'})
 		}
