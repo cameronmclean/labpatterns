@@ -10,13 +10,14 @@
 	</head>
 	<body onunload=""> <!-- onunload forces page reload if back button in browser is pressed  - need to repopualte forces from db !-->
 		<h1> {{ request.session.new_pattern_name }} </h1>
-		<p> <img src="{{ MEDIA_URL }}{{ request.session.new_pattern_image }}"> </p>
+		<p class='logo'> <img src="{{ MEDIA_URL }}{{ request.session.new_pattern_image }}"> </p>
+		<div class='forms'>
 		<form id="newForce" enctype="multipart/form-data" method="POST" action="">
 			<div>
 				{% for form in formset %}
-				<p>
-					{{ form }}
-				</p>
+				<table>
+				{{ form }}
+				</table>
 				{% endfor %}
 			</div>
 			<div class="button_holder">
@@ -26,13 +27,14 @@
 			{{ formset.management_form }}
 					
 		</form> 
+		</div>
 		<!-- this is the script to add another or remove an instance of the force formset.
 		it uses a jQuery selector to select the form with #id newForce, and operates over the div element. 
-		it doesnt seem to matter (for now! if i select just the <div> or the <p> within the <div> element. 
-		difference is wheter it will be important later to incude the for loop or not. !-->
+		it doesnt seem to matter (for now! if i select just the <div> or the <table> within the <div> element. 
+		teh differnce being whether or not it will be important later to incude the for loop or not. !-->
 		<script type="text/javascript"> 
 		$(function() {
-			$('#newForce div p').formset();
+			$('#newForce div table').formset();
 		})
 		</script>
 

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang=en>
+	<head>
+		<title>Set the scene</title>
+		<link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}base.css">
+	</head>
+	<body>
+		<table>
+			<tr>{{ terms.name }}</tr>
+			{% for word in wordlist %}
+				<tr>{{ word }}></tr>
+			{% endfor %}
+				
+	</body>
+</html>

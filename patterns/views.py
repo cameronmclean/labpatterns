@@ -4,6 +4,7 @@ from patterns.forms import *
 from django.forms.models import modelformset_factory
 from patterns.models import *
 from django.views.decorators.cache import cache_control
+from patterns import thesaurus3
 
 
 # Create your views here.
@@ -194,4 +195,15 @@ def add_new_solution(request):
 
 
 	return render(request, 'new_solutionale.html', {'formS':formS, 'formR':formR})
+
+
+def see_related_terms(request):
+	# specify which sringn 
+	terms = Force.objects.get(id=5)
+	#wordlist = []
+	wordlist = thesaurus3.get_all(terms.name)
+	#print thesaurus3.get_all('test')
+	#print type(wordlist)
+
+	return render(request, 'see_related.html', {'wordlist':wordlist, 'terms':terms})
 

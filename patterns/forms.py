@@ -1,4 +1,4 @@
-from django.forms import ModelForm, TextInput, HiddenInput
+from django.forms import ModelForm, TextInput, HiddenInput, Textarea
 from patterns.models import *
 
 # This is the form to add a new pattern name and pattern pictogram to the database - it is inteded as the fist page for adding a new pattern.
@@ -15,7 +15,7 @@ class NewProblem(ModelForm):
 		fields = ['description']
 		labels = { 'description': 'Problem Description',
 		}
-		widgets = { 'description': TextInput(attrs={'placeholder': 'Enter a pithy description of the problem'})
+		widgets = { 'description': Textarea(attrs={'cols':80, 'rows':20}), 'description': Textarea(attrs={'placeholder': 'Enter a pithy description of the problem'}), 
 		}
 
 class NewContext(ModelForm):
@@ -24,7 +24,7 @@ class NewContext(ModelForm):
 		fields = ['description']
 		labels = { 'description': 'Context',
 		}
-		widgets = { 'description': TextInput(attrs={'placeholder': 'Enter a detailed description of the context in which this problem occurs'})
+		widgets = {  'description': Textarea(attrs={'cols':80, 'rows':20}), 'description': Textarea(attrs={'placeholder': 'Enter a detailed description of the context in which this problem occurs'})
 		}
 
 # the NewForce from is used in form factory (modelformset_factory) in the view to allow muliple instances of forces to be displated and edited on a single page  
@@ -34,7 +34,7 @@ class NewForce(ModelForm):
 		fields = ['name', 'description', 'pictogram']
 		labels = { 'name': 'Force', 'description': 'Definition',
 		}
-		widgets = { 'description': TextInput(attrs={'placeholder': 'Enter a definition for this force term - be as specific as the pattern allows'}),
+		widgets = {  'description': Textarea(attrs={'cols':80, 'rows':20}), 'description': Textarea(attrs={'placeholder': 'Enter a definition for this force term - be as specific as the pattern allows'}),
 					'name': TextInput(attrs={'placeholder': 'Enter a term to name this force'})
 
 		}
@@ -45,7 +45,7 @@ class NewSolution(ModelForm):
 		fields = ['description']
 		labels = { 'description': 'Solution Description',
 		}
-		widgets = { 'description': TextInput(attrs={'placeholder': 'Enter a pithy description of the solution'})
+		widgets = {  'description': Textarea(attrs={'cols':80, 'rows':20}), 'description': Textarea(attrs={'placeholder': 'Enter a pithy description of the solution'})
 		}
 
 class NewRationale(ModelForm):
@@ -54,5 +54,5 @@ class NewRationale(ModelForm):
 		fields = ['description']
 		labels = { 'description': 'Rationale',
 		}
-		widgets = { 'description': TextInput(attrs={'placeholder': 'Enter a detailed description of the rationale which justifies the solution'})
+		widgets = {  'description': Textarea(attrs={'cols':80, 'rows':20}), 'description': Textarea(attrs={'placeholder': 'Enter a detailed description of the rationale which justifies the solution'})
 		}
