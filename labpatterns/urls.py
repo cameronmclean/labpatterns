@@ -14,5 +14,6 @@ urlpatterns = patterns('',
     url(r'^newprobtext/$', 'patterns.views.add_new_prob_and_context', name='new_probtext'),
     url(r'^newforce/$', 'patterns.views.add_new_force', name="new_force"),
     url(r'^newsolutionale/$', 'patterns.views.add_new_solution', name='new_solution'),
+    url(r'^related/$', 'patterns.views.see_related_terms', name='see_related'),
     url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT }),
 )

@@ -730,6 +730,7 @@ but i have duplicated it again inside the first if - left it there from debuggin
 
 But anyhoo - it works for now...
 
+
 ```
 def add_new_force(request):
     ForceFormSet = modelformset_factory(Force, form=NewForce, can_delete=False)
@@ -778,4 +779,16 @@ def add_new_force(request):
 
     return render(request, 'new_force.html', {'formset': formset})
 ```
+
+##### 20140515
+
+Took a break from entering pattern info into the db and played with thesaurus lookups for Force names.
+The idea being that after one has entered a name for the Force, they are presented with simiarl or related terms, and can select a group of similar meanings. This short list can then be used to search against existing ontologies for exisiting formal concepts.
+Ended up using http://words.bighugelabs.com/ and thier API.
+Modifed a script from https://gist.github.com/hugorodgerbrown/3134709 to take string, parse it using space delim, submit the words one by one to the thesaurus, and crate a unified list of all similar, related or synomyn words for each word in the force term.
+Did a hastly view/template/urls page just to get some output - seems to work OK.
+The temporary view is `see_related_terms` which uses the `/related/` url and `see_related.html` template. 
+
+Basic functions are there - next is to present the list as a choice and have the user shorten it...
+  
 
