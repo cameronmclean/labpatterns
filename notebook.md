@@ -791,4 +791,71 @@ The temporary view is `see_related_terms` which uses the `/related/` url and `se
 
 Basic functions are there - next is to present the list as a choice and have the user shorten it...
   
+##### 20140516
+
+Getting the big list of realted force words for the 'current' pattern.
+
+A bit tricky at first...
+Ended up storing each set of related words returned from the thesauraus3.py as a list in a dict, with force names as keys...
+
+```
+def see_related_terms(request):
+    # get all the force objects for the current pattern
+    #terms = Force.objects.filter(parent_pattern=request.session['new_pattern_key'])
+    terms = Force.objects.filter(parent_pattern=32)
+    #creat a dict to store a list of terms for each pattern force
+    related_force_terms = {}
+    tempWordlist = []
+    for name in terms:
+        tempWordlist = thesaurus3.get_all(name.name) # parses the force name by spac delim and returns the aggregate of all the related words
+        related_force_terms[name.name] = tempWordlist # store the force name and list of related terms in the dict
+    print related_force_terms.keys()
+    #print thesaurus3.get_all('test')
+    #print type(wordlist)
+
+    return render(request, 'see_related.html', {'related_force_terms':related_force_terms})
+```
+
+#### looping over lists stored in a python dict... in a django template....
+getting the template to view these was tricky - typical nested for loops give "Could not parse the remainder" error.
+Turns out that in templates you use .notation to access dict/list elements.
+
+ended up getting it this way..
+
+```
+<table>
+            {% for force, words in related_force_terms.items %}
+                <tr class="force_name"><td>{{ force }}</td></tr>
+                    {% for word in words %}
+                    <tr><td>{{ word }}</td></tr>
+                    {% endfor %}
+            {% endfor %}
+        </table>
+```
+OK - so kinda geting there. It can take a few seconds to fetch the names, parse, do the external API thing and return the info for the view.
+So considering celery to have all this run in the background after so we can do the knowledge work after the inital pattern has been added and reviewed. So, after running through the process, review, and hitting "yep, looks good" the script is immediatly run while we fetch the words?
+
+OR.. just have a loading spinny thing....
+ the latter is probably simpler and can be done with some JS...  - user can wait :)
+ http://www.loadinfo.net/ has cool animated gifs that are appropriate.
+
+...
+
+OK skipping around the place today...
+
+Entering references and examples to the pattern db - with later semantic markup in mind.
+One approach is to have users upload the references as BibTex *because this is already structured*, parse this file, and store in the db.
+These are some reasonable BibTex parsers for python https://pypi.python.org/pypi/bibtexparser/0.5.4, and a mapping to say BIBO should be straight forward...
+This however would require dynamic models, as allsorts of expressibility is possible in BibTex for eg @article type can be journal article, conference, website etc etc, and we may want to store new types on the fly - but keep the elements addressible/accessible in the  db schema for easy RDF conversion.
+One way is to organise the reference relation (db) much as I have done the patterns- a central "reference" with attributes as new tables realted by foreign key.. This model/schema is highly extensible (we can add as many one-to-many or one-to-one relations as we want)
+Useful as a reference can have many authors..., but one publication date, URL etc...
+IT DOES CREATE LOTS OF JOIN REQUIREMENTS on querying though - which sacrifices performance. 
+
+Django dynamic models - http://www.slideshare.net/schacki/django-dynamic-models20130502
+https://code.djangoproject.com/wiki/DynamicModels
+
+Possibly have users upload or paste data in bibtex format, associate each ref with the pattern, parse and store in db as a background job? (using south migrate to update db if BibTex has unseen fields...)
+
+
+
 

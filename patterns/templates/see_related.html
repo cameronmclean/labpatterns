@@ -6,10 +6,12 @@
 	</head>
 	<body>
 		<table>
-			<tr>{{ terms.name }}</tr>
-			{% for word in wordlist %}
-				<tr>{{ word }}></tr>
+			{% for force, words in related_force_terms.items %}
+				<tr class="force_name"><td>{{ force }}</td></tr>
+					{% for word in words %}
+					<tr><td>{{ word }}</td></tr>
+					{% endfor %}
 			{% endfor %}
-				
+		</table>		
 	</body>
 </html>
