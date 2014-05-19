@@ -833,7 +833,7 @@ ended up getting it this way..
         </table>
 ```
 OK - so kinda geting there. It can take a few seconds to fetch the names, parse, do the external API thing and return the info for the view.
-So considering celery to have all this run in the background after so we can do the knowledge work after the inital pattern has been added and reviewed. So, after running through the process, review, and hitting "yep, looks good" the script is immediatly run while we fetch the words?
+So considering celery? http://celery.readthedocs.org/en/latest/django/first-steps-with-django.html to have all this run in the background after so we can do the knowledge work after the inital pattern has been added and reviewed. So, after running through the process, review, and hitting "yep, looks good" the script is immediatly run while we fetch the words?
 
 OR.. just have a loading spinny thing....
  the latter is probably simpler and can be done with some JS...  - user can wait :)
@@ -856,6 +856,101 @@ https://code.djangoproject.com/wiki/DynamicModels
 
 Possibly have users upload or paste data in bibtex format, associate each ref with the pattern, parse and store in db as a background job? (using south migrate to update db if BibTex has unseen fields...)
 
+But - remember to try and check - for name clashes between user uploaded bibtex and exisitng models
+    - muliple users
+    - orphan db elemetns
+    - dynamic model loading at startup (before other models are loaded)
+    - how to find and get/inject dynamic models into views and templates...
 
 
+Hmmmm - or maybe just choose a subset of BixTex fields - and force the user to paste in structuted data - without having to worry about dynamics - force them into a reasonable description that balances strucutre and ease/consistency/integrity....
+
+Maybe just choose some popular classes and properties from BIBO - made a model for these 
+
+Or - just store them as a bibtex object/serialised firl
+
+
+##### 20140519
+
+Back to getting related Force terms...
+
+Created a model to store the relatec words - a one-to-many relationship with the user entered Force term.
+
+```
+class RelatedWord(models.Model):
+    id = models.AutoField(primary_key=True)
+    force = models.ForeignKey(Force)
+    word = models.CharField('Related Word', max_length=255, blank=True)
+
+    def __unicode__(sefl):
+        return self.word
+
+    class Meta:
+        db_table = 'force_words'
+```
+
+Ran south to do the migration `python manage.py schemamigration patterns --auto` then `python manage.py migrate patterns`
+
+also added the model to admin.py so we can use the admin view to edit things...
+
+
+OK - so pretty dodgey - but I';ve wired up a view/page/template to fetch a list of related terms for each force, present them with chcek boxes, upon a POST have only the selected terms retained.
+ The applicaiton logic I've written to achieve this is completely retarted, but it does work...
+
+ 1. - fetch the terms from the thesauraus3.py call.
+ 2. - save *all* the terms in the db.
+ 3. - display all the terms with checkboxes (this is actuall passed to the template not via the db, just the recent objects returned from thesauraus3.py)
+ 4. - catch the selected terms from the POST request and put the values of the words selected in a list.
+ 5. - reload all the related words for the session
+ 6. - if the words are not in the shortlist from the POST/checkbutton generated list > delete them...
+
+So - pretty dumb. but meh - good enough - its just a stepping stone to get to the more important ontology terms....
+
+NOTE - currently the delete operation just matches word names without regard for which force they belong to - this means if i select say "luminescent" to keep for the force "light generation", but this word happened to be amongst the options for other forces (say light transmission) then it is also retained for the other forces, even though I may not have selected it for the other force. This is a side effect of saving everything first, then deleting them, looping through all words rather than by each force.. no biggie - just saying the whole thing could/should be refactored 
+
+Other thing - the call to thesaurus3 takes some time - we'd ideally like to show a loading/spinny thing here - AJAX is something to investigate....
+this looks really useful too
+https://courses.tutsplus.com/courses/30-days-to-learn-jquery
+
+And i'm gonna need to seriously add some more style to the pages soon...
+
+
+for referenceing and getting the checkbuttons working without using any Django modelform magic - i did the following
+make the words from the thesaurus3 call display in the template inside a `<form>` element as an `<input>` - the name and value attributes are critical - note we use the {{ word }} variable twice - once inside the value, and once to print on the screen.
+also note the use of only one `<form>` and the submit button put once in another table cell, at the end after all the looping.
+```
+
+                    <form method="POST" action="" enctype="multipart/form-data"> {% csrf_token %}
+                        {% for force, words in related_force_terms.items %}
+                            <tr class="force_name"><td>{{ force }}</td></tr>
+                                {% for word in words %}
+                                <tr><td><input type="checkbox" name="checks" value="{{ word }}"> {{ word }} </td></tr>
+                            {% endfor %}
+                        {% endfor %}    
+                        <tr><td>
+                        <div class="button_holder">
+                            <input type="submit" value="Submit">
+                        </div>
+                        <tr><td>        
+```
+from this form data is the sent to the view via POST - and we catch it here in views.py
+
+the request.POST.getlist('checks') returns a *list* of all the *values* of the checkboxes named *'checks'*. cool eh?
+```
+#create a list to store the selected words
+    listToKeep = []
+    if request.method == "POST":
+
+        listToKeep = request.POST.getlist('checks')
+        for item in listToKeep:
+            print item
+        
+        #load all the words again based on t
+        wordsToDelete = RelatedWord.objects.filter(force=(Force.objects.filter(parent_pattern=request.session['new_pattern_key'])))
+        #loop through all the related words in this session, if its not on the list - delete it.
+        
+        for thing in wordsToDelete:
+            if thing.word not in listToKeep:
+                thing.delete()
+```
 

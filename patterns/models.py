@@ -111,7 +111,16 @@ class Evidence(models.Model):
         db_table = 'evidence'
 
 
+class RelatedWord(models.Model):
+    id = models.AutoField(primary_key=True)
+    force = models.ForeignKey(Force)
+    word = models.CharField('Related Word', max_length=255, blank=True)
 
+    def __unicode__(self):
+        return self.word
+
+    class Meta:
+        db_table = 'force_words'
 
 
 

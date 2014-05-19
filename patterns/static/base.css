@@ -110,3 +110,6 @@ td {
 	text-align: left;
 }
 
+.force_name {
+	font-weight: bold;
+}

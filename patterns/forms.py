@@ -56,3 +56,4 @@ class NewRationale(ModelForm):
 		}
 		widgets = {  'description': Textarea(attrs={'cols':80, 'rows':20}), 'description': Textarea(attrs={'placeholder': 'Enter a detailed description of the rationale which justifies the solution'})
 		}
+

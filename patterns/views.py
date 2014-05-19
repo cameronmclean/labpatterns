@@ -170,24 +170,9 @@ def add_new_solution(request):
 			#put the just added info into a session variable 
 			request.session['new_solution_id'] = newSolutionInstance.id
 			request.session['new_rationale_id'] = newRationaleInstance.id
-
-			
 		
-			# flush the session dictonary so adding another pattern in during the same browser session wont overwrite the one we just added...
-			# this should come after the last form entry page.
-		#	request.session.flush()			
-			del request.session['new_pattern_key']
-			del request.session['new_pattern_name']
-			del request.session['new_pattern_image']
-			del request.session['new_problem_id']
-			del request.session['new_context_id']
-		#	del request.session['new_force_id']
-			del request.session['forces_added']
-			del request.session['new_solution_id']
-			del request.session['new_rationale_id']
-	
 			
-			return redirect('/')
+			return redirect('/related/')
 
 	else:
 		formS = NewSolution()
@@ -198,18 +183,67 @@ def add_new_solution(request):
 
 
 def see_related_terms(request):
-	# get all the force objects for the current pattern
-	#terms = Force.objects.filter(parent_pattern=request.session['new_pattern_key'])
-	terms = Force.objects.filter(parent_pattern=32)
-	#creat a dict to store a list of terms for each pattern force
-	related_force_terms = {}
-	tempWordlist = []
-	for name in terms:
-		tempWordlist = thesaurus3.get_all(name.name) # parses the force name by spac delim and returns the aggregate of all the related words
-		related_force_terms[name.name] = tempWordlist # store the force name and list of related terms in the dict
-	print related_force_terms.keys()
+
+	#chcek to see if we have loaded words already
+
+	if not 'wordlist' in request.session:
+		# get all the force objects for the current pattern
+		terms = Force.objects.filter(parent_pattern=request.session['new_pattern_key'])
+		#terms = Force.objects.filter(parent_pattern=32)
+		#creat a dict to store a list of terms for each pattern force
+		related_force_terms = {}
+		tempWordlist = []
+		for name in terms:
+			tempWordlist = thesaurus3.get_all(name.name) # parses the force name by space delim and returns the aggregate of all the related words
+			related_force_terms[name.name] = tempWordlist # store the force name and list of related terms in the dict
+
+			#save the related terms in the db
+			for aword in tempWordlist:
+				wordToSave = RelatedWord(force=Force.objects.get(name=name.name), word=aword)
+				wordToSave.save()
+
+			request.session['wordlist'] = True # this doesnt need to get set every time through the for loop, but can be anywhre inside the first if..
+		
+
+	#print related_force_terms.keys()
 	#print thesaurus3.get_all('test')
 	#print type(wordlist)
+
+	#create a list to store the selected words
+	listToKeep = []
+	if request.method == "POST":
+
+		listToKeep = request.POST.getlist('checks')
+		for item in listToKeep:
+			print item
+		
+		#load all the words again based on t
+		wordsToDelete = RelatedWord.objects.filter(force=(Force.objects.filter(parent_pattern=request.session['new_pattern_key'])))
+		#loop through all the related words in this session, if its not on the list - delete it.
+		
+		for thing in wordsToDelete:
+			if thing.word not in listToKeep:
+				thing.delete()
+	
+
+		
+		# flush the session dictonary so adding another pattern in during the same browser session wont overwrite the one we just added...
+		# this should come after the last form entry page.
+		#	request.session.flush()			
+		del request.session['new_pattern_key']
+		del request.session['new_pattern_name']
+		del request.session['new_pattern_image']
+		del request.session['new_problem_id']
+		del request.session['new_context_id']
+		#	del request.session['new_force_id']
+		del request.session['forces_added']
+		del request.session['new_solution_id']
+		del request.session['new_rationale_id']
+	
+		del request.session['wordlist']
+		
+		return redirect('/')
+
 
 	return render(request, 'see_related.html', {'related_force_terms':related_force_terms})
 
