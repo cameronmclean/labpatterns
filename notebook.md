@@ -953,4 +953,31 @@ the request.POST.getlist('checks') returns a *list* of all the *values* of the c
             if thing.word not in listToKeep:
                 thing.delete()
 ```
+--------------
+
+
+OK - moving on to NCBO ontology lookup with the related words...
+
+current status - lookupscript needs to be refactored to just take the terms as input and return the defs when when we call it from the view.
+The view logic should do all the iterating and sorting over the force names and accosiated terms, and their definitions.....
+
+also - can use jQuery and ajax - to load the forces thesauraus page within another page, while displaying loading images within say a div, that is replaced once the see_related.html is done....
+
+
+
+##### 20140520
+
+call to NCBO is not being sanitised properly - spaces need probably need to striped/endoced as %20 ...
+
+did this using urllib.quote(string)
+just need to `import urllib`
+
+next - make model to store the retreived results
+save to model instead of temporary variable
+play with the NCBO portal more and look at default settings.
+then work on prettyfying the views/templates.
+possible (definatley) refactor to move some of the views logic to a seperate file, control flow and browser back....
+
+
+todaly i learnt that looping over nested dicts/list is trickly - summarise here later the key findings...
 

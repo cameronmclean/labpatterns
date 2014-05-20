@@ -93,7 +93,6 @@ def get_all(input_string):
         related_words = syn+sim+rel
         # append related terms for each word in the initial term/query
         total_words_of_interest = total_words_of_interest+related_words
-       # print total_words_of_interest
-   # print total_words_of_interest
+        #print total_words_of_interest
     return total_words_of_interest
 

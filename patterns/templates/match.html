@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang=en>
+	<head>
+		<title>Set the scene</title>
+		<link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}base.css">
+	</head>
+	<body>
+		<table>
+			
+					<form method="POST" action="" enctype="multipart/form-data"> {% csrf_token %}
+						{% for force, match in matches.items %}
+							<tr class="force_name"><td>{{ force }}</td></tr>
+								{% for item in match %}
+								<tr><td><input type="checkbox" name="checks" value="{{ match }}"> {{ match }} </td></tr>
+							{% endfor %}
+						{% endfor %}	
+						<tr><td>
+						<div class="button_holder">
+							<input type="submit" value="Submit">
+						</div>
+						<tr><td>							
+		</table>			
+	</body>
+</html>

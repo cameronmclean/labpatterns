@@ -4,7 +4,7 @@ from patterns.forms import *
 from django.forms.models import modelformset_factory
 from patterns.models import *
 from django.views.decorators.cache import cache_control
-from patterns import thesaurus3
+from patterns import thesaurus3, class_lookup
 
 
 # Create your views here.
@@ -225,25 +225,143 @@ def see_related_terms(request):
 			if thing.word not in listToKeep:
 				thing.delete()
 	
-
 		
-		# flush the session dictonary so adding another pattern in during the same browser session wont overwrite the one we just added...
-		# this should come after the last form entry page.
-		#	request.session.flush()			
-		del request.session['new_pattern_key']
-		del request.session['new_pattern_name']
-		del request.session['new_pattern_image']
-		del request.session['new_problem_id']
-		del request.session['new_context_id']
-		#	del request.session['new_force_id']
-		del request.session['forces_added']
-		del request.session['new_solution_id']
-		del request.session['new_rationale_id']
-	
-		del request.session['wordlist']
-		
-		return redirect('/')
+		return redirect('/match/')
 
 
 	return render(request, 'see_related.html', {'related_force_terms':related_force_terms})
+
+def ontology_lookup(request):
+
+	# Get list of all the current forces from the db
+	currentForces = Force.objects.filter(parent_pattern=request.session['new_pattern_key'])
+
+	search_terms = {}
+	#terms = []
+	# for each force, get the name, sore in a list, then append to the list the related words (if any)
+	# then query the NCBO API, and return a dict which contains the force, and a list of ontology matches....
+	for item in currentForces:
+		terms = [] # reset the terms list?
+		#store the foce name
+		terms.append(item.name)
+		
+		# get the related terms and append to the list
+		wordObjects = RelatedWord.objects.filter(force_id=item.id)
+		for thing in wordObjects:
+			terms.append(thing.word)
+
+		# store in a dict forces [key] and terms [list of values] to be passed to the lookup
+		search_terms[item.name] = terms
+
+	# print search_terms # < working now!
+	#print dir(search_terms)
+	
+	# lookup returns a dict of dict to be stored in matches. dict[force name] {[term]{ncbo JSON}} 
+	matches = class_lookup.lookup(search_terms)
+
+	print type(matches) # matches is a dict {}
+	k = matches.keys() # keys are unicode force names
+	print k
+
+	saved_option = {} #create empty dict to store the saved options - later this will be a model instance
+
+	for match, data in matches.iteritems(): #for each key (match) in the matches dict{} , there is another dict{} (data) as the value
+	#	print type(match)
+	#	print match    
+		#print type(data)
+		#d = data.keys()  # the data keys are 'links' 'pageCount' 'collection' 'prevPage' 'nextPage'
+		#print d
+		force_we_are_working_on = match
+		# we are interested in the 'collection' key = the value of which is a list of dicts! yikes!
+		# i.e data['collection'] in this for loop contains a list of dicts{} !
+		
+		# for each force term (match) fetch the list of dicts we are interested in
+		newlist = data['collection']
+
+		# we now want to access the dicts in this list
+		for thing in newlist:
+		#	print type(thing)
+	#		k = thing.keys()
+	#		print k
+
+		# the dict keys in our newlist (a copy of data['collection']) vary by item - but include 'definition', 'synonym', 'links', 'semanticType', 'obsolete', 'prefLabel' '@context' '@id' '@type' 'cui'
+		
+		# the values for each of the keys differs too - with more nested dicts, list, etc...  looping over them as below gives the following mapping...
+	#		for key, datas in thing.iteritems():
+	#			print type(datas)
+
+				#the above gives....
+				# 'definition'    <type 'list'>  
+				# 'synonym'       <type 'list'>
+				# 'links'	      <type 'dict'>
+				# 'semanticType'  <type 'list'>  
+				# 'obselete'      <type 'bool'>
+				# 'prefLabel'     <type 'unicode'>
+				# '@context'      <type 'dict'>
+				# '@id'           <type 'unicode'>
+				# '@type'         <type 'unicode'>
+				# 'cui'           <type 'list'>
+				
+			# we want to grab prefLabel, synonym, defintion, id, type, and from within links - the value of ['ontology']
+			# then store all of these in a db table, indexed by force.
+			# later the user can cull the ones they dont want.
+			
+			#only save instances for which definitions exist - these dict keys will later be model fields
+			
+
+			if 'definition' in thing:
+
+				saved_option['definition'] = thing['definition']  # we need to convert this to a string
+				saved_option['prefLabel'] = thing['prefLabel']
+				if 'synonym' in thing:
+					saved_option['synonym'] = thing['synonym']
+				saved_option['id'] = thing['@id']
+				saved_option['type'] = thing['@type']
+				
+				for a, b in thing.iteritems():
+					if a == 'links':
+						if 'ontology' in b:
+							saved_option['ontology'] = b['ontology'] # not sure of this will work...
+				
+				saved_option['force'] = force_we_are_working_on #  Force.objects.get(name=force_we_are_working_on)  # not sure if this variable is accessible
+
+				print type(saved_option)
+			#	print dir(saved_option)
+				print saved_option['prefLabel']
+				print saved_option['definition'] 
+				print saved_option['ontology']
+				print saved_option['force']
+			#saved_option = OntologyMatch() # need to create this model and put it outside the first for loop.!
+			# for now just create a new list to test....	
+				#
+			
+		#print type(newlist)
+
+	# crazylooping time
+
+#	for force, term in matches.iteritems():
+#		print force
+#		#print term
+#		print type(term)
+#		k = term.keys()
+#		print k
+
+
+	# flush the session dictonary so adding another pattern in during the same browser session wont overwrite the one we just added...
+	# this should come after the last form entry page.
+	#	request.session.flush()			
+	#del request.session['new_pattern_key']
+	#del request.session['new_pattern_name']
+	#del request.session['new_pattern_image']
+	#del request.session['new_problem_id']
+	#del request.session['new_context_id']
+	#	del request.session['new_force_id']
+	#del request.session['forces_added']
+	#del request.session['new_solution_id']
+	#del request.session['new_rationale_id']
+	
+	#del request.session['wordlist']
+
+	return render(request, 'match.html', {'matches':matches})
+
 
