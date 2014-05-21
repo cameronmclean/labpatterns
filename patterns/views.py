@@ -22,7 +22,8 @@ def home(request):
 def add_new_pattern_name(request):
 #	form = NewPatternName()
 	if request.method == 'POST':
-		# check to see if we have added a pattern in this session (i.e user has clicked back on browser - if so, load that pattern to update rather than create a new one)
+		# check to see if we have added a pattern in this session (i.e user has clicked back on browser 
+		# - if so, load that pattern to update rather than create a new one)
 		# note we clear the session dictonary after the final form submission. 
 		if 'new_pattern_key' in request.session:
 			form = NewPatternName(request.POST, request.FILES, instance=DesignPattern.objects.get(id=request.session['new_pattern_key']))
@@ -49,7 +50,7 @@ def add_new_prob_and_context(request):
 #	formP = NewProblem()
 #	formC = NewContext()
 	if request.method == 'POST':
-		#check to see if we have filled out this form already in this session
+		#check to see if we have filled out this form already in this session - if so, populate the from with that instance
 		if 'new_problem_id' in request.session:
 			formP = NewProblem(request.POST, instance=Problem.objects.get(id=request.session['new_problem_id'])) 
 		else:
@@ -79,16 +80,15 @@ def add_new_prob_and_context(request):
 			
 			return redirect('/newforce/')
 		
-		#else:
-		#	print formP.errors
-		#	print formC.errors
+	
 	else:
 		formP = NewProblem()
 		formC = NewContext()
 	return render(request, 'new_probtext.html', {'formP':formP, 'formC':formC})
 
 
-#@cache_control(no_cache=True, must_revalidate=True) - no longer needed - solved via template <body onunload="">
+#@cache_control(no_cache=True, must_revalidate=True)
+## - decorator no longer needed - trying to force page reload on browser back solved via template <body onunload="">
 def add_new_force(request):
 	ForceFormSet = modelformset_factory(Force, form=NewForce, can_delete=False)
 	data = {
@@ -98,39 +98,48 @@ def add_new_force(request):
 	}
 	if request.method == 'POST' :
 
+		# check to see if we have added forces already - if so get all the current forces and use them as the initial queryset
+		# we also need to set data 'form-INITIAL_FORMS' value to the number of forces/forms in the queryset
 		if 'forces_added' in request.session:
 			ForceFormSet = modelformset_factory(Force, form=NewForce, can_delete=False, extra=0)
 			data['form-TOTAL_FORMS'] = Force.objects.filter(parent_pattern=request.session['new_pattern_key']).count()
 			initialForms = Force.objects.filter(parent_pattern=request.session['new_pattern_key'])
-			print data['form-TOTAL_FORMS']
-			print initialForms
+			# print data['form-TOTAL_FORMS']
+			# print initialForms
 			formset = ForceFormSet(request.POST, request.FILES, data, queryset=initialForms)
 		
-
+		# is we havent added forces yet - start with one blank form.	
 		else:
 			formset = ForceFormSet(request.POST, request.FILES, data, queryset=Force.objects.none())
 		
+		# validate forms and then save upon POST.
 		if formset.is_valid():
+			# for each form 
 			for form in formset.forms:
 				newInstance = form.save(commit=False)
+				# add foreign key from session variable
 				newInstance.parent_pattern = DesignPattern.objects.get(id=request.session['new_pattern_key'])
-		#		print dir(newInstance)
-		#		print newInstance.description
-		#		print newInstance.parent_pattern_id
+				# save each force to db
 				newInstance.save()	
-								
+			# after saving all forces, set session variable to flag we have added forces								
 			request.session['forces_added'] = True
 
+	
 			return redirect('/newsolutionale/')
+	
+	# if we are not POSTing - i.e we GETing - check to see if it forst time or browser back/reload
 	else: 
 		if 'forces_added' in request.session:
-			ForceFormSet = modelformset_factory(Force, form=NewForce, can_delete=False, extra=0) # dont display extra forms if user hits back button
+			# if yes - populate the session forces 
+			ForceFormSet = modelformset_factory(Force, form=NewForce, can_delete=False, extra=0) # extra=0 causes dont display extra forms
+																								 # if user hits back button - if there is a blank form,
+																								 # user must enter a Null force or populate another one 
+																								 #- they may not want to do this.
 			data['form-TOTAL_FORMS'] = Force.objects.filter(parent_pattern=request.session['new_pattern_key']).count()
 			initialForms = Force.objects.filter(parent_pattern=request.session['new_pattern_key'])
-			print data['form-TOTAL_FORMS']
-			print initialForms
 			formset = ForceFormSet(queryset=initialForms)
 		
+		# otherwise this is the first time to add forces - load empty form 
 		else:
 			formset = ForceFormSet(queryset=Force.objects.none())
 
@@ -171,7 +180,7 @@ def add_new_solution(request):
 			request.session['new_solution_id'] = newSolutionInstance.id
 			request.session['new_rationale_id'] = newRationaleInstance.id
 		
-			
+			# redirect to select related terms NOTE - we havnt addded references yet...
 			return redirect('/related/')
 
 	else:
@@ -194,8 +203,10 @@ def see_related_terms(request):
 		related_force_terms = {}
 		tempWordlist = []
 		for name in terms:
-			tempWordlist = thesaurus3.get_all(name.name) # parses the force name by space delim and returns the aggregate of all the related words
-			related_force_terms[name.name] = tempWordlist # store the force name and list of related terms in the dict
+			tempWordlist = thesaurus3.get_all(name.name) # we give thesaurus3 the name of the force object 
+														 # thesaurus3 returns a dict of of all the related words, including the original name
+			related_force_terms[name.name] = tempWordlist # store the force name and list of related terms in the dict 
+														# NOTE - no longer used - probably made for debugging
 
 			#save the related terms in the db
 			for aword in tempWordlist:
@@ -204,10 +215,6 @@ def see_related_terms(request):
 
 			request.session['wordlist'] = True # this doesnt need to get set every time through the for loop, but can be anywhre inside the first if..
 		
-
-	#print related_force_terms.keys()
-	#print thesaurus3.get_all('test')
-	#print type(wordlist)
 
 	#create a list to store the selected words
 	listToKeep = []
@@ -315,14 +322,13 @@ def ontology_lookup(request):
 				saved_option.definition = str(thing['definition']).strip('u[]')  # we need to convert this to a string
 				saved_option.prefLabel = thing['prefLabel']
 				if 'synonym' in thing:
-					saved_option.synonym = thing['synonym']
+					saved_option.synonyms = thing['synonym']  # watch the s here!
 				saved_option.term = thing['@id']
 				#saved_option['type'] = thing['@type']
 				
 				for a, b in thing.iteritems():
-					if a == 'links':
-						if 'ontology' in b:
-							saved_option.ontology = b['ontology'] # not sure of this will work...
+					if a == 'links' and 'ontology' in b:
+						saved_option.ontology = b['ontology'] # not sure of this will work...
 				
 				saved_option.force = Force.objects.get(name=force_we_are_working_on)  # not sure if this variable is accessible
 

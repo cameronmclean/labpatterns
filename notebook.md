@@ -967,10 +967,11 @@ also - can use jQuery and ajax - to load the forces thesauraus page within anoth
 
 ##### 20140520
 
-call to NCBO is not being sanitised properly - spaces need probably need to striped/endoced as %20 ...
+call to NCBO is not being sanitised properly - spaces need probably need to striped/endoced as %20 ... or + 
 
-did this using urllib.quote(string)
+did this using `urllib.quote(string)`
 just need to `import urllib`
+of pluses (+) are required `urllib.quote_plus(string)` does the job.
 
 next - make model to store the retreived results
 save to model instead of temporary variable
@@ -980,4 +981,131 @@ possible (definatley) refactor to move some of the views logic to a seperate fil
 
 
 todaly i learnt that looping over nested dicts/list is trickly - summarise here later the key findings...
+
+
+##### 20140521
+
+made a new model to store the related ontology terms.
+
+```
+class RelatedOntologyTerm(models.Model):
+    id = models.AutoField(primary_key=True)
+    prefLabel = models.CharField('Label', max_length=255)
+    synomyns = models.CharField('Synomyns', max_length=255, blank=True)
+    definition = models.TextField('Defintion')
+    force = models.ForeignKey(Force)
+    ontology = models.URLField('Ontology')
+    term = models.URLField('Term')
+
+    BROADER = 'skos:broadMatch'
+    NARROWER = 'skos:narrowMatch'
+    EXACTMATCH = 'skos:ExactMatch'
+    CLOSEMATCH = 'skos:closeMatch'
+    RELATEDMATCH = 'skos:relatedMatch'
+
+    RELATIONSHIP_CHOICES = (
+            (BROADER, 'Broader'),
+            (NARROWER, 'Narrower'),
+            (EXACTMATCH, 'Exact'),
+            (CLOSEMATCH, 'Close'),
+            (RELATEDMATCH, 'Related'),
+        ) 
+    relationship = models.CharField(max_length=25, choices=RELATIONSHIP_CHOICES, default=RELATEDMATCH)
+
+    def __unicode__(self):
+        return self.prefLabel
+
+    class Meta:
+        db_table = 'ontology_terms'
+```
+
+each force can have one-to-many matching ontology terms.
+currently the views logic fetches all the terms based on the expanded term set and queries the Bioportal search API.
+It parses the returned JSON/dict and stores only terms that contain a defintion in the db.
+Only the fileds above are collected from the returned JSON.
+
+Next is to present this as a modelFormset for selecting/editing or some other way as per thesaurus to populate the template, check and set, and delete the non-selected.
+
+### NOTE all this server-side, save to db first is a bad way to do things.. It works, but is inefficient, doesnt scale, and we have too many async db read/writes which may lead to orphaned data and inconsistency. 
+Need to refactor at some point - but it is not critical for this prototype.
+
+Cams cheat sheet for iterateing / looping over lists and dicts and lists of dicts of dicts of lists....
+We need to use various combiations of these
+
+
+#### To iterate over a list
+
+```
+for item in list
+    print item
+    if item == 'string'
+        etc etc....
+```
+
+#### To access a list item
+can only do by interger position eg
+
+```
+list = [1,2,3]
+print list[0]
+ # will print value '1' - the 0th item in the list
+```
+
+#### Iterate over a dict
+
+```
+value = None
+
+for item in dict
+    print dict[item]
+    # prints the value for each dict key - (item gives us the key)
+```
+
+#### Get dict keys
+
+```
+dict = {}
+dict = resutOfSomeFunction()
+
+#get the keys as a list
+
+```
+keys = dict.keys()
+
+for item in keys:
+    print item      #will print all the keys to the dict that are stored in the keys list
+```
+
+# iterate over keys and values for a dict - useful when the value is another list or dict etc...
+use .iteritems()
+
+```
+for key, value in dict.iteritmes():
+    for anotherKey, anotherValue in value.iteritems(): # for the case where value is another dict
+        etc...
+```
+
+OK - some more things - 
+Client side or server side - probably doesnt matter much 
+see http://stackoverflow.com/questions/1516852/client-side-logic-or-server-side-logic
+
+will stick with client for now ... we are only handling small request and data
+
+reasons - 1) doesnt depend on JS/client issues, hence more controllable
+          2) potentially more secure
+          3) less duplication 
+          4) EASIER to implement
+          5) eaiser to maintain and read
+
+
+so - handling browser back on term and ontology selection - force refresh of page and re-fetch all the terms and display them again.
+Will proablably need to delete all first or check if already exisits in db to prevent duplicates being stored on browser back/forward...
+
+Also - local vs API way to access thesaurus or ontology...
+Can branch and start a local version to lookup these things.
+
+Also - one way to keep the notebook in sync between branches - a cherry-picked merge for notebook.md that is triggered after a git post-commit hook.
+
+
+
 
