@@ -263,7 +263,7 @@ def ontology_lookup(request):
 	k = matches.keys() # keys are unicode force names
 	print k
 
-	saved_option = {} #create empty dict to store the saved options - later this will be a model instance
+	#saved_option = {} #create empty dict to store the saved options - later this will be a model instance
 
 	for match, data in matches.iteritems(): #for each key (match) in the matches dict{} , there is another dict{} (data) as the value
 	#	print type(match)
@@ -308,29 +308,37 @@ def ontology_lookup(request):
 			
 			#only save instances for which definitions exist - these dict keys will later be model fields
 			
+			saved_option = RelatedOntologyTerm()
 
 			if 'definition' in thing:
 
-				saved_option['definition'] = thing['definition']  # we need to convert this to a string
-				saved_option['prefLabel'] = thing['prefLabel']
+				saved_option.definition = str(thing['definition']).strip('u[]')  # we need to convert this to a string
+				saved_option.prefLabel = thing['prefLabel']
 				if 'synonym' in thing:
-					saved_option['synonym'] = thing['synonym']
-				saved_option['id'] = thing['@id']
-				saved_option['type'] = thing['@type']
+					saved_option.synonym = thing['synonym']
+				saved_option.term = thing['@id']
+				#saved_option['type'] = thing['@type']
 				
 				for a, b in thing.iteritems():
 					if a == 'links':
 						if 'ontology' in b:
-							saved_option['ontology'] = b['ontology'] # not sure of this will work...
+							saved_option.ontology = b['ontology'] # not sure of this will work...
 				
-				saved_option['force'] = force_we_are_working_on #  Force.objects.get(name=force_we_are_working_on)  # not sure if this variable is accessible
+				saved_option.force = Force.objects.get(name=force_we_are_working_on)  # not sure if this variable is accessible
 
-				print type(saved_option)
+				saved_option.save()
+
+				# should now be a list saved to the db. - a list of all possible cadidate matches 
+				# we need to present these to the template and have the user cull/select only the relevant ones
+
+			#	print type(saved_option)
 			#	print dir(saved_option)
-				print saved_option['prefLabel']
-				print saved_option['definition'] 
-				print saved_option['ontology']
-				print saved_option['force']
+			#	print saved_option['prefLabel']
+			#	print saved_option['definition'] 
+			#	print saved_option['force']
+	
+	for item in search_terms:
+		print search_terms[item]
 			#saved_option = OntologyMatch() # need to create this model and put it outside the first for loop.!
 			# for now just create a new list to test....	
 				#

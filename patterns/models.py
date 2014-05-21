@@ -122,8 +122,34 @@ class RelatedWord(models.Model):
     class Meta:
         db_table = 'force_words'
 
+class RelatedOntologyTerm(models.Model):
+    id = models.AutoField(primary_key=True)
+    prefLabel = models.CharField('Label', max_length=255)
+    synomyns = models.CharField('Synomyns', max_length=255, blank=True)
+    definition = models.TextField('Defintion')
+    force = models.ForeignKey(Force)
+    ontology = models.URLField('Ontology')
+    term = models.URLField('Term')
 
+    BROADER = 'skos:broadMatch'
+    NARROWER = 'skos:narrowMatch'
+    EXACTMATCH = 'skos:ExactMatch'
+    CLOSEMATCH = 'skos:closeMatch'
+    RELATEDMATCH = 'skos:relatedMatch'
 
+    RELATIONSHIP_CHOICES = (
+            (BROADER, 'Broader'),
+            (NARROWER, 'Narrower'),
+            (EXACTMATCH, 'Exact'),
+            (CLOSEMATCH, 'Close'),
+            (RELATEDMATCH, 'Related'),
+        ) 
+    relationship = models.CharField(max_length=25, choices=RELATIONSHIP_CHOICES, default=RELATEDMATCH)
 
+    def __unicode__(self):
+        return self.prefLabel
+
+    class Meta:
+        db_table = 'ontology_terms'
 
 
