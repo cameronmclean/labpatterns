@@ -137,14 +137,14 @@ class RelatedOntologyTerm(models.Model):
     CLOSEMATCH = 'skos:closeMatch'
     RELATEDMATCH = 'skos:relatedMatch'
 
-    RELATIONSHIP_CHOICES = (
+    CHOICES = (
             (BROADER, 'Broader'),
             (NARROWER, 'Narrower'),
             (EXACTMATCH, 'Exact'),
             (CLOSEMATCH, 'Close'),
             (RELATEDMATCH, 'Related'),
         ) 
-    relationship = models.CharField(max_length=25, choices=RELATIONSHIP_CHOICES, default=RELATEDMATCH)
+    relationship = models.CharField(max_length=25, choices=CHOICES, default=RELATEDMATCH)
 
     def __unicode__(self):
         return self.prefLabel

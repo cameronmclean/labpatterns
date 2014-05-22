@@ -8,10 +8,17 @@
 		<table>
 			
 					<form method="POST" action="" enctype="multipart/form-data"> {% csrf_token %}
-						{% for force, match in matches.items %}
+						{% for force, match in ontology_match.items %}
 							<tr class="force_name"><td>{{ force }}</td></tr>
 								{% for item in match %}
-								<tr><td><input type="checkbox" name="checks" value="{{ match }}"> {{ match }} </td></tr>
+								<tr><td><input type="checkbox" name="checks" value="{{ item.prefLabel }}"> {{ item.prefLabel }} </td> 
+								<td>
+								<select name="relationship">
+									{% for k, v in choices %}
+									<option value="{{ k }}"> {{ v }} </option>
+									{% endfor %}
+								</td>
+								</td></tr>
 							{% endfor %}
 						{% endfor %}	
 						<tr><td>

@@ -1107,5 +1107,29 @@ Can branch and start a local version to lookup these things.
 Also - one way to keep the notebook in sync between branches - a cherry-picked merge for notebook.md that is triggered after a git post-commit hook.
 
 
+##### 20140522
+
+Started passing saved ontology matches to the template for user selection and relationship specification..
+
+ended up doing it by getting choices from the model in views.py, and then passing it to the template as a seperate variable
+
+views.py 
+
+```
+choices = RelatedOntologyTerm.CHOICES
+```
+
+template.html
+
+```
+<select name="relationship">
+    {% for k, v in choices %}
+        <option value="{{ k }}"> {{ v }} </option>
+    {% endfor %}
+```
+
+Next up is to have the POST operation save all the right things upon one submit
+And to add more fields to the table and prettyify the holw thing.
+Still need to sort browser back issues too - best to rerun the whole API call fetch/save/filter each time - i.e force page refress, as this is the only way to get all the options back, which the user will be expecting...
 
 
