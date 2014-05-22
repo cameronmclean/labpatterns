@@ -12,20 +12,24 @@
 							<tr class="force_name"><td>{{ force }}</td></tr>
 								{% for item in match %}
 								<tr><td><input type="checkbox" name="checks" value="{{ item.prefLabel }}"> {{ item.prefLabel }} </td> 
+									<td>
+										{{ item.definition }}
+									</td>
 								<td>
 								<select name="relationship">
 									{% for k, v in choices %}
 									<option value="{{ k }}"> {{ v }} </option>
 									{% endfor %}
 								</td>
-								</td></tr>
+								</tr>
 							{% endfor %}
 						{% endfor %}	
 						<tr><td>
 						<div class="button_holder">
 							<input type="submit" value="Submit">
 						</div>
-						<tr><td>							
+						</tr></td>
+					</form>							
 		</table>			
 	</body>
 </html>

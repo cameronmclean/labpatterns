@@ -125,7 +125,7 @@ class RelatedWord(models.Model):
 class RelatedOntologyTerm(models.Model):
     id = models.AutoField(primary_key=True)
     prefLabel = models.CharField('Label', max_length=255)
-    synonyms = models.CharField('Synonyms', max_length=255, blank=True)
+    synonyms = models.TextField('Synonyms', blank=True)
     definition = models.TextField('Defintion')
     force = models.ForeignKey(Force)
     ontology = models.URLField('Ontology')

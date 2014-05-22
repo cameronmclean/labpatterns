@@ -157,7 +157,7 @@ def add_new_solution(request):
 			formS = NewSolution(request.POST)
 
 		if 'new_rationale_id' in request.session:
-			formR = NewRationale(request.POST, instance=Rationale.objects.get(id=request.session['new_ratioanle_id']))
+			formR = NewRationale(request.POST, instance=Rationale.objects.get(id=request.session['new_rationale_id']))
 		else:
 			formR = NewRationale(request.POST)
 
