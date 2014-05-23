@@ -12,7 +12,7 @@ def get_json(url):
     opener.addheaders = [('Authorization', 'apikey token=' + '3d7b2a70-8c4f-4a1e-a1a3-222fdb0be786' )]
     return json.loads(opener.open(url).read())
 
-p9;oly67890po-'9;dqwsaz	mailto:events@eresearch.org.nzB'
+
 def lookup(search_terms):
 	
 	# lookup takes a dict of lists as input search_terms[force name][list of terms]
@@ -29,7 +29,7 @@ def lookup(search_terms):
 		# for each term, look it up, and append it to the dict whoes key value is the current force name
 		for item in word_list:
 			search_results[force] = (get_json(REST_URL + "/search?q=" + urllib.quote_plus(item)))
-			print REST_URL + "/search?q=" + urllib.quote_plus(item)
+		#	print REST_URL + "/search?q=" + urllib.quote_plus(item)
 		#combine all the results in a new dict of dict to return		
 		matches = search_results
 	

@@ -266,15 +266,17 @@ def ontology_lookup(request):
 		# store in a dict forces [key] and terms [list of values] to be passed to the lookup
 		search_terms[item.name] = terms
 
-	# print search_terms # < working now!
-	#print dir(search_terms)
+#	for k, v in search_terms.items():   #
+#		#print k 						#  This prints a list of search terms to the console for debugging
+#		for item in v:					# 
+#			print item 					#
 	
 	# lookup returns a dict of dict to be stored in matches. dict[force name] {[term]{ncbo JSON}} 
 	matches = class_lookup.lookup(search_terms)
 
-	print type(matches) # matches is a dict {}
-	k = matches.keys() # keys are unicode force names
-	print k
+	#print type(matches) # matches is a dict {}
+	#k = matches.keys() # keys are unicode force names
+	#print k
 
 	#saved_option = {} #create empty dict to store the saved options - later this will be a model instance
 

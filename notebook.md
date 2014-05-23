@@ -1111,7 +1111,7 @@ Also - one way to keep the notebook in sync between branches - a cherry-picked m
 
 Started passing saved ontology matches to the template for user selection and relationship specification..
 
-ended up doing it by getting choices from the model in views.py, and then passing it to the template as a seperate variable
+ended up doing relationship specification by getting choices from the model in views.py, and then passing it to the template as a seperate variable
 
 views.py 
 
@@ -1129,7 +1129,10 @@ template.html
 ```
 
 Next up is to have the POST operation save all the right things upon one submit
-And to add more fields to the table and prettyify the holw thing.
+And to add more fields to the table and prettyify the hole thing.
 Still need to sort browser back issues too - best to rerun the whole API call fetch/save/filter each time - i.e force page refress, as this is the only way to get all the options back, which the user will be expecting...
 
 
+##### 20140523
+
+Fixed browser back issues with thesaurus lookup. Just a hack to clear the db, and restart afresh with getting the current session force names, and recalling the API. Also forced page refresh in the template with `onunload=""` Better practice might be to cache all this stuff (either client or sever side) but for now just focusing on core functionality....
