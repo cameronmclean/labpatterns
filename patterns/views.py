@@ -193,25 +193,31 @@ def add_new_solution(request):
 
 def see_related_terms(request):
 
-	#chcek to see if we have loaded words already, if not, go fetch all the words
+	# check to see if we have loaded words already, if so, delete all the current related words in the db, and start again with a clean slate
+	# this way is a dodgy hack to prevent duplicate entries being stored in the db if the user hits back/forward multiple times
+	if 'wordlist' in request.session:
+		# get list of all the realted word objects for this session, then delete them - we then go and get them all again
+		allWordsToDelete = RelatedWord.objects.filter(force=(Force.objects.filter(parent_pattern=request.session['new_pattern_key'])))
+		for item in allWordsToDelete:
+			item.delete()
 
-	if not 'wordlist' in request.session:
+
 		# get all the force objects for the current pattern
-		terms = Force.objects.filter(parent_pattern=request.session['new_pattern_key'])
-		#terms = Force.objects.filter(parent_pattern=32)
-		#creat a dict to store a list of terms for each pattern force
-		related_force_terms = {}
-		tempWordlist = []
-		for name in terms:
-			tempWordlist = thesaurus3.get_all(name.name) # we give thesaurus3 the name of the force object 
-														 # thesaurus3 returns a dict of of all the related words, including the original name
-			related_force_terms[name.name] = tempWordlist # store the force name and list of related terms in the dict 
-														# NOTE this is passed to the template and we loop through it.
+	terms = Force.objects.filter(parent_pattern=request.session['new_pattern_key'])
+	#terms = Force.objects.filter(parent_pattern=32)
+	#creat a dict to store a list of terms for each pattern force
+	related_force_terms = {}
+	tempWordlist = []
+	for name in terms:
+		tempWordlist = thesaurus3.get_all(name.name) # we give thesaurus3 the name of the force object 
+													 # thesaurus3 returns a dict of of all the related words, including the original name
+		related_force_terms[name.name] = tempWordlist # store the force name and list of related terms in the dict 
+													# NOTE this is passed to the template and we loop through it.
 
-			#save the related terms in the db
-			for aword in tempWordlist:
-				wordToSave = RelatedWord(force=Force.objects.get(name=name.name), word=aword)
-				wordToSave.save()
+		#save the related terms in the db
+		for aword in tempWordlist:
+			wordToSave = RelatedWord(force=Force.objects.get(name=name.name), word=aword)
+			wordToSave.save()
 
 			request.session['wordlist'] = True # this doesnt need to get set every time through the second for loop, but can be anywhre inside the first if..
 		
