@@ -201,27 +201,6 @@ def see_related_terms(request):
 		for item in allWordsToDelete:
 			item.delete()
 
-
-		# get all the force objects for the current pattern
-	terms = Force.objects.filter(parent_pattern=request.session['new_pattern_key'])
-	#terms = Force.objects.filter(parent_pattern=32)
-	#creat a dict to store a list of terms for each pattern force
-	related_force_terms = {}
-	tempWordlist = []
-	for name in terms:
-		tempWordlist = thesaurus3.get_all(name.name) # we give thesaurus3 the name of the force object 
-													 # thesaurus3 returns a dict of of all the related words, including the original name
-		related_force_terms[name.name] = tempWordlist # store the force name and list of related terms in the dict 
-													# NOTE this is passed to the template and we loop through it.
-
-		#save the related terms in the db
-		for aword in tempWordlist:
-			wordToSave = RelatedWord(force=Force.objects.get(name=name.name), word=aword)
-			wordToSave.save()
-
-			request.session['wordlist'] = True # this doesnt need to get set every time through the second for loop, but can be anywhre inside the first if..
-		
-
 	#create a list to store the selected words
 	listToKeep = []
 	
@@ -242,131 +221,38 @@ def see_related_terms(request):
 		
 		return redirect('/match/')
 
+	else:
 
-	return render(request, 'see_related.html', {'related_force_terms':related_force_terms})
+		# get all the force objects for the current pattern
+		terms = Force.objects.filter(parent_pattern=request.session['new_pattern_key'])
+		#terms = Force.objects.filter(parent_pattern=32)
+		#creat a dict to store a list of terms for each pattern force
+		related_force_terms = {}
+		tempWordlist = []
+		for name in terms:
+			tempWordlist = thesaurus3.get_all(name.name) # we give thesaurus3 the name of the force object 
+														 # thesaurus3 returns a dict of of all the related words, including the original name
+			related_force_terms[name.name] = tempWordlist # store the force name and list of related terms in the dict 
+														# NOTE this is passed to the template and we loop through it.
+
+			#save the related terms in the db
+			for aword in tempWordlist:
+				wordToSave = RelatedWord(force=Force.objects.get(name=name.name), word=aword)
+				wordToSave.save()
+
+				request.session['wordlist'] = True # this doesnt need to get set every time through the second for loop, but can be anywhre inside the first if..
+		
+
+		return render(request, 'see_related.html', {'related_force_terms':related_force_terms})
 
 def ontology_lookup(request):
 
- 	# clear all previous potential matches and re-fetch on page reload
- 	if 'already_matched' in request.session:
- 		allThingsToDelete = RelatedOntologyTerm.objects.filter(force=(Force.objects.filter(parent_pattern=request.session['new_pattern_key'])))
-		for entry in allWordsToDelete:
-			entry.delete()
+ 	
 
-
-	# Get list of all the current forces from the db
-	currentForces = Force.objects.filter(parent_pattern=request.session['new_pattern_key'])
-
-	search_terms = {}
-	#terms = []
-	# for each force, get the name, sore in a list, then append to the list the related words (if any)
-	# then query the NCBO API, and return a dict which contains the force, and a list of ontology matches....
-	for item in currentForces:
-		terms = [] # reset the terms list?
-		#store the foce name
-		terms.append(item.name)
-		
-		# get the related terms and append to the list
-		wordObjects = RelatedWord.objects.filter(force_id=item.id)
-		for thing in wordObjects:
-			terms.append(thing.word)
-
-		# store in a dict forces [key] and terms [list of values] to be passed to the lookup
-		search_terms[item.name] = terms
-
-	#	for k, v in search_terms.items():   #
-	#		#print k 						#  This prints a list of search terms to the console for debugging
-	#		for item in v:					# 
-	#			print item 					#
-	
-	# lookup returns a dict of dict to be stored in matches. dict[force name] {[term]{ncbo JSON}} 
-		matches = class_lookup.lookup(search_terms)
-
-	#print type(matches) # matches is a dict {}
-	#k = matches.keys() # keys are unicode force names
-	#print k
-
-	#saved_option = {} #create empty dict to store the saved options - later this will be a model instance
-
-	for match, data in matches.iteritems(): #for each key (match) in the matches dict{} , there is another dict{} (data) as the value
-		#d = data.keys()  # the data keys are 'links' 'pageCount' 'collection' 'prevPage' 'nextPage'
-		force_we_are_working_on = match
-		# we are interested in the 'collection' key = the value of which is a list of dicts! yikes!
-		# i.e data['collection'] in this for loop contains a list of dicts{} !
-	
-		# for each force term (match) fetch the list of dicts we are interested in
-		newlist = data['collection']
-
-		# we now want to access the dicts in this list
-		for thing in newlist:
-		#	print type(thing)
-		#	k = thing.keys()
-		#	print k
-
-		# the dict keys in our newlist (a copy of data['collection']) vary by item - but include 'definition', 'synonym', 'links', 'semanticType', 'obsolete', 'prefLabel' '@context' '@id' '@type' 'cui'
-	
-		# the values for each of the keys differs too - with more nested dicts, list, etc...  looping over them as below gives the following mapping...
-		#	for key, datas in thing.iteritems():
-		#		print type(datas)
-
-			#the above gives....
-			# 'definition'    <type 'list'>  
-			# 'synonym'       <type 'list'>
-			# 'links'	      <type 'dict'>
-			# 'semanticType'  <type 'list'>  
-			# 'obselete'      <type 'bool'>
-			# 'prefLabel'     <type 'unicode'>
-			# '@context'      <type 'dict'>
-			# '@id'           <type 'unicode'>
-			# '@type'         <type 'unicode'>
-			# 'cui'           <type 'list'>
-				
-		# we want to grab prefLabel, synonym, defintion, id, type, and from within links - the value of ['ontology']
-		# then store all of these in a db table, indexed by force.
-		# later the user can cull the ones they dont want.
-			
-		#only save instances for which definitions exist 
-			
-			saved_option = RelatedOntologyTerm()
-
-			if 'definition' in thing:
-
-				saved_option.definition = str(thing['definition']).strip('u[]')  # we need to convert this to a string
-				saved_option.prefLabel = thing['prefLabel']
-				if 'synonym' in thing:
-					saved_option.synonyms = thing['synonym']  # watch the s here!
-				saved_option.term = thing['@id']
-				#saved_option['type'] = thing['@type']
-				
-				for a, b in thing.iteritems():
-					if a == 'links' and 'ontology' in b:
-						saved_option.ontology = b['ontology'] # not sure of this will work...
-				
-				saved_option.force = Force.objects.get(name=force_we_are_working_on)  # not sure if this variable is accessible
-
-				saved_option.save()
-
-				request.session['already_matched'] = True
-
-			# should now be a list saved to the db. - a list of all possible cadidate matches 
-			# we need to present these to the template and have the user cull/select only the relevant ones
-
-	# collect and pass the saved but unfiltered matches to the template 	
-	
-	ontology_match = {}
-	for item in currentForces:
-		ontology_match[item.name] = RelatedOntologyTerm.objects.filter(force=Force.objects.filter(name=item.name))
-		# ontology_match is now a dict with keys = force name, values = model instances
-		# we loop over these in the template and diplay them for slection and relationship setting...
-	
-	choices = RelatedOntologyTerm.CHOICES
-	
 	listToKeep = []
 	selectedValue = {}
 	if request.method == 'POST':
 		
-		
-
 		# get the checked items - returns the id of the ontology match object 
 		listToKeep = request.POST.getlist('checks')
 
@@ -376,8 +262,9 @@ def ontology_lookup(request):
 		
 		for item in listToKeep:
 			print item
-		#	for k, v in selectedValue.items():
-		#		print k + " " + v
+			print type(item)
+			for k, v in selectedValue.items():
+				print k + " " + v
 
 		
 		# set the relationship choice for the selected items
@@ -391,20 +278,128 @@ def ontology_lookup(request):
 		allOntologyMatches = RelatedOntologyTerm.objects.filter(force=(Force.objects.filter(parent_pattern=request.session['new_pattern_key'])))
 		# loop through all the ontology matches in this session, if its not on the listToKeep - delete it.
 		for thing in allOntologyMatches:
-			print thing.id
-			if thing.id not in listToKeep:
+			if str(thing.id) not in listToKeep:
+				print "deleting " + str(thing.id)
 				thing.delete()
-
-
-
-	#	for thing in allOntologyMatches:
-	#		if thing.id not in listToKeep:
-	#			thing.delete()
-	#		else:
-	#			print thing.id + " kept"
 				
 		
 		return redirect('/')
+
+	else:
+		# clear all previous potential matches and re-fetch on page reload
+ 		if 'already_matched' in request.session:
+ 			allThingsToDelete = RelatedOntologyTerm.objects.filter(force=(Force.objects.filter(parent_pattern=request.session['new_pattern_key'])))
+			for entry in allThingsToDelete:
+				entry.delete()
+		
+		# Get list of all the current forces from the db
+		currentForces = Force.objects.filter(parent_pattern=request.session['new_pattern_key'])
+
+		search_terms = {}
+		#terms = []
+		# for each force, get the name, sore in a list, then append to the list the related words (if any)
+		# then query the NCBO API, and return a dict which contains the force, and a list of ontology matches....
+		for item in currentForces:
+			terms = [] # reset the terms list?
+			#store the foce name
+			terms.append(item.name)
+		
+			# get the related terms and append to the list
+			wordObjects = RelatedWord.objects.filter(force_id=item.id)
+			for thing in wordObjects:
+				terms.append(thing.word)
+
+			# store in a dict forces [key] and terms [list of values] to be passed to the lookup
+			search_terms[item.name] = terms
+
+		#	for k, v in search_terms.items():   #
+		#		#print k 						#  This prints a list of search terms to the console for debugging
+		#		for item in v:					# 
+		#			print item 					#
+	
+		# lookup returns a dict of dict to be stored in matches. dict[force name] {[term]{ncbo JSON}} 
+			matches = class_lookup.lookup(search_terms)
+
+		#print type(matches) # matches is a dict {}
+		#k = matches.keys() # keys are unicode force names
+		#print k
+
+		#saved_option = {} #create empty dict to store the saved options - later this will be a model instance
+
+		for match, data in matches.iteritems(): #for each key (match) in the matches dict{} , there is another dict{} (data) as the value
+			#d = data.keys()  # the data keys are 'links' 'pageCount' 'collection' 'prevPage' 'nextPage'
+			force_we_are_working_on = match
+			# we are interested in the 'collection' key = the value of which is a list of dicts! yikes!
+			# i.e data['collection'] in this for loop contains a list of dicts{} !
+	
+			# for each force term (match) fetch the list of dicts we are interested in
+			newlist = data['collection']
+
+			# we now want to access the dicts in this list
+			for thing in newlist:
+			#	print type(thing)
+			#	k = thing.keys()
+			#	print k
+
+			# the dict keys in our newlist (a copy of data['collection']) vary by item - but include 'definition', 'synonym', 'links', 'semanticType', 'obsolete', 'prefLabel' '@context' '@id' '@type' 'cui'
+	
+			# the values for each of the keys differs too - with more nested dicts, list, etc...  looping over them as below gives the following mapping...
+			#	for key, datas in thing.iteritems():
+			#		print type(datas)
+
+			#the above gives....
+			# 'definition'    <type 'list'>  
+			# 'synonym'       <type 'list'>
+			# 'links'	      <type 'dict'>
+			# 'semanticType'  <type 'list'>  
+			# 'obselete'      <type 'bool'>
+			# 'prefLabel'     <type 'unicode'>
+			# '@context'      <type 'dict'>
+			# '@id'           <type 'unicode'>
+			# '@type'         <type 'unicode'>
+			# 'cui'           <type 'list'>
+				
+			# we want to grab prefLabel, synonym, defintion, id, type, and from within links - the value of ['ontology']
+			# then store all of these in a db table, indexed by force.
+			# later the user can cull the ones they dont want.
+			
+			#only save instances for which definitions exist 
+			
+				saved_option = RelatedOntologyTerm()
+
+				if 'definition' in thing:
+
+					saved_option.definition = str(thing['definition']).strip('u[]')  # we need to convert this to a string
+					saved_option.prefLabel = thing['prefLabel']
+					if 'synonym' in thing:
+						saved_option.synonyms = thing['synonym']  # watch the s here!
+					saved_option.term = thing['@id']
+					#saved_option['type'] = thing['@type']
+				
+					for a, b in thing.iteritems():
+						if a == 'links' and 'ontology' in b:
+							saved_option.ontology = b['ontology'] # not sure of this will work...
+				
+					saved_option.force = Force.objects.get(name=force_we_are_working_on)  # not sure if this variable is accessible
+
+					saved_option.save()
+
+					request.session['already_matched'] = True
+
+				# should now be a list saved to the db. - a list of all possible cadidate matches 
+				# we need to present these to the template and have the user cull/select only the relevant ones
+
+		# collect and pass the saved but unfiltered matches to the template 	
+	
+		ontology_match = {}
+		for item in currentForces:
+			ontology_match[item.name] = RelatedOntologyTerm.objects.filter(force=Force.objects.filter(name=item.name))
+			# ontology_match is now a dict with keys = force name, values = model instances
+			# we loop over these in the template and diplay them for slection and relationship setting...
+	
+		choices = RelatedOntologyTerm.CHOICES
+	
+	
 
 		# flush the session dictonary so adding another pattern in during the same browser session wont overwrite the one we just added...
 		# this should come after the last form entry page.
@@ -421,6 +416,6 @@ def ontology_lookup(request):
 	
 		#del request.session['wordlist']
 
-	return render(request, 'match.html', {'ontology_match':ontology_match, 'choices':choices})
+		return render(request, 'match.html', {'ontology_match':ontology_match, 'choices':choices})
 
 
