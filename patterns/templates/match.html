@@ -11,12 +11,12 @@
 						{% for force, match in ontology_match.items %}
 							<tr class="force_name"><td>{{ force }}</td></tr>
 								{% for item in match %}
-								<tr><td><input type="checkbox" name="checks" value="{{ item.prefLabel }}"> {{ item.prefLabel }} </td> 
+								<tr><td><input type="checkbox" name="checks" value="{{ item.id }}"> {{ item.prefLabel }} </td> 
 									<td>
 										{{ item.definition }}
 									</td>
 								<td>
-								<select name="relationship">
+								<select name="{{ item.id }}">
 									{% for k, v in choices %}
 									<option value="{{ k }}"> {{ v }} </option>
 									{% endfor %}

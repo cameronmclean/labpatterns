@@ -133,7 +133,7 @@ class RelatedOntologyTerm(models.Model):
 
     BROADER = 'skos:broadMatch'
     NARROWER = 'skos:narrowMatch'
-    EXACTMATCH = 'skos:ExactMatch'
+    EXACTMATCH = 'skos:exactMatch'
     CLOSEMATCH = 'skos:closeMatch'
     RELATEDMATCH = 'skos:relatedMatch'
 

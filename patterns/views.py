@@ -224,13 +224,14 @@ def see_related_terms(request):
 
 	#create a list to store the selected words
 	listToKeep = []
+	
 	if request.method == "POST":
 
 		listToKeep = request.POST.getlist('checks')
 		#for item in listToKeep:
 		#	print item
 		
-		#load all the words again based on t
+		#load all the words again based on the session variables
 		wordsToDelete = RelatedWord.objects.filter(force=(Force.objects.filter(parent_pattern=request.session['new_pattern_key'])))
 		#loop through all the related words in this session, if its not on the list - delete it.
 		
@@ -245,6 +246,13 @@ def see_related_terms(request):
 	return render(request, 'see_related.html', {'related_force_terms':related_force_terms})
 
 def ontology_lookup(request):
+
+ 	# clear all previous potential matches and re-fetch on page reload
+ 	if 'already_matched' in request.session:
+ 		allThingsToDelete = RelatedOntologyTerm.objects.filter(force=(Force.objects.filter(parent_pattern=request.session['new_pattern_key'])))
+		for entry in allWordsToDelete:
+			entry.delete()
+
 
 	# Get list of all the current forces from the db
 	currentForces = Force.objects.filter(parent_pattern=request.session['new_pattern_key'])
@@ -266,13 +274,13 @@ def ontology_lookup(request):
 		# store in a dict forces [key] and terms [list of values] to be passed to the lookup
 		search_terms[item.name] = terms
 
-#	for k, v in search_terms.items():   #
-#		#print k 						#  This prints a list of search terms to the console for debugging
-#		for item in v:					# 
-#			print item 					#
+	#	for k, v in search_terms.items():   #
+	#		#print k 						#  This prints a list of search terms to the console for debugging
+	#		for item in v:					# 
+	#			print item 					#
 	
 	# lookup returns a dict of dict to be stored in matches. dict[force name] {[term]{ncbo JSON}} 
-	matches = class_lookup.lookup(search_terms)
+		matches = class_lookup.lookup(search_terms)
 
 	#print type(matches) # matches is a dict {}
 	#k = matches.keys() # keys are unicode force names
@@ -285,7 +293,7 @@ def ontology_lookup(request):
 		force_we_are_working_on = match
 		# we are interested in the 'collection' key = the value of which is a list of dicts! yikes!
 		# i.e data['collection'] in this for loop contains a list of dicts{} !
-		
+	
 		# for each force term (match) fetch the list of dicts we are interested in
 		newlist = data['collection']
 
@@ -296,28 +304,28 @@ def ontology_lookup(request):
 		#	print k
 
 		# the dict keys in our newlist (a copy of data['collection']) vary by item - but include 'definition', 'synonym', 'links', 'semanticType', 'obsolete', 'prefLabel' '@context' '@id' '@type' 'cui'
-		
+	
 		# the values for each of the keys differs too - with more nested dicts, list, etc...  looping over them as below gives the following mapping...
 		#	for key, datas in thing.iteritems():
 		#		print type(datas)
 
-				#the above gives....
-				# 'definition'    <type 'list'>  
-				# 'synonym'       <type 'list'>
-				# 'links'	      <type 'dict'>
-				# 'semanticType'  <type 'list'>  
-				# 'obselete'      <type 'bool'>
-				# 'prefLabel'     <type 'unicode'>
-				# '@context'      <type 'dict'>
-				# '@id'           <type 'unicode'>
-				# '@type'         <type 'unicode'>
-				# 'cui'           <type 'list'>
+			#the above gives....
+			# 'definition'    <type 'list'>  
+			# 'synonym'       <type 'list'>
+			# 'links'	      <type 'dict'>
+			# 'semanticType'  <type 'list'>  
+			# 'obselete'      <type 'bool'>
+			# 'prefLabel'     <type 'unicode'>
+			# '@context'      <type 'dict'>
+			# '@id'           <type 'unicode'>
+			# '@type'         <type 'unicode'>
+			# 'cui'           <type 'list'>
 				
-			# we want to grab prefLabel, synonym, defintion, id, type, and from within links - the value of ['ontology']
-			# then store all of these in a db table, indexed by force.
-			# later the user can cull the ones they dont want.
+		# we want to grab prefLabel, synonym, defintion, id, type, and from within links - the value of ['ontology']
+		# then store all of these in a db table, indexed by force.
+		# later the user can cull the ones they dont want.
 			
-			#only save instances for which definitions exist 
+		#only save instances for which definitions exist 
 			
 			saved_option = RelatedOntologyTerm()
 
@@ -338,8 +346,10 @@ def ontology_lookup(request):
 
 				saved_option.save()
 
-				# should now be a list saved to the db. - a list of all possible cadidate matches 
-				# we need to present these to the template and have the user cull/select only the relevant ones
+				request.session['already_matched'] = True
+
+			# should now be a list saved to the db. - a list of all possible cadidate matches 
+			# we need to present these to the template and have the user cull/select only the relevant ones
 
 	# collect and pass the saved but unfiltered matches to the template 	
 	
@@ -351,26 +361,65 @@ def ontology_lookup(request):
 	
 	choices = RelatedOntologyTerm.CHOICES
 	
-	for force, entry in ontology_match.items():
-		print force
-		print type(entry)
+	listToKeep = []
+	selectedValue = {}
+	if request.method == 'POST':
+		
+		
+
+		# get the checked items - returns the id of the ontology match object 
+		listToKeep = request.POST.getlist('checks')
+
+		# get the select values (of the checked the items) 
+		for item in listToKeep:
+			selectedValue[item] = request.POST[item]
+		
+		for item in listToKeep:
+			print item
+		#	for k, v in selectedValue.items():
+		#		print k + " " + v
+
+		
+		# set the relationship choice for the selected items
+		for k, v in selectedValue.iteritems():
+			w = RelatedOntologyTerm.objects.get(id=k)
+			w.relationship = v
+			w.save()
+
+		
+		# load all the ontology matches again
+		allOntologyMatches = RelatedOntologyTerm.objects.filter(force=(Force.objects.filter(parent_pattern=request.session['new_pattern_key'])))
+		# loop through all the ontology matches in this session, if its not on the listToKeep - delete it.
+		for thing in allOntologyMatches:
+			print thing.id
+			if thing.id not in listToKeep:
+				thing.delete()
 
 
 
-	# flush the session dictonary so adding another pattern in during the same browser session wont overwrite the one we just added...
-	# this should come after the last form entry page.
-	#	request.session.flush()			
-	#del request.session['new_pattern_key']
-	#del request.session['new_pattern_name']
-	#del request.session['new_pattern_image']
-	#del request.session['new_problem_id']
-	#del request.session['new_context_id']
-	#	del request.session['new_force_id']
-	#del request.session['forces_added']
-	#del request.session['new_solution_id']
-	#del request.session['new_rationale_id']
+	#	for thing in allOntologyMatches:
+	#		if thing.id not in listToKeep:
+	#			thing.delete()
+	#		else:
+	#			print thing.id + " kept"
+				
+		
+		return redirect('/')
+
+		# flush the session dictonary so adding another pattern in during the same browser session wont overwrite the one we just added...
+		# this should come after the last form entry page.
+		#	request.session.flush()			
+		#del request.session['new_pattern_key']
+		#del request.session['new_pattern_name']
+		#del request.session['new_pattern_image']
+		#del request.session['new_problem_id']
+		#del request.session['new_context_id']
+		#	del request.session['new_force_id']
+		#del request.session['forces_added']
+		#del request.session['new_solution_id']
+		#del request.session['new_rationale_id']
 	
-	#del request.session['wordlist']
+		#del request.session['wordlist']
 
 	return render(request, 'match.html', {'ontology_match':ontology_match, 'choices':choices})
 

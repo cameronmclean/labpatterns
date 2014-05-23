@@ -1136,3 +1136,8 @@ Still need to sort browser back issues too - best to rerun the whole API call fe
 ##### 20140523
 
 Fixed browser back issues with thesaurus lookup. Just a hack to clear the db, and restart afresh with getting the current session force names, and recalling the API. Also forced page refresh in the template with `onunload=""` Better practice might be to cache all this stuff (either client or sever side) but for now just focusing on core functionality....
+
+AHHH - 
+So, a major problem is with the way I have written the flow/control logic in the views.py for fetching related terms, and ontology lookup
+Each API is being called twice - once on load, once on post - this is causing errors to the db save/select/delete...
+I can proabbly fix this with nested if and careful positioning of session variables. 
