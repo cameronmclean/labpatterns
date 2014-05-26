@@ -1142,7 +1142,7 @@ So, a major problem is with the way I have written the flow/control logic in the
 Each API is being called twice - once on load, once on post - this is causing errors to the db save/select/delete...
 I can proabbly fix this with nested if and careful positioning of session variables. 
 
-fixed flow control (mostly) - still need to checked...
+fixed flow control (mostly) - still need to checked... yes working - by putting the `if 'already been here' in request.seesions: the delete etc..` code first check upon load if we are NOT request.method == 'POST'.  
 
 REMEMER TO CHECK TYPES WHEN DOING COMPARISONS - the problem with the view 
 
@@ -1154,8 +1154,70 @@ for thing in allOntologyMatches:
 ```
 
 was that initially I was checking to see if thing.id (longint) was in listToKeep (unicode)
-because of type mismatch - mothing was in the list and all we're being deleted.
-added a str() and now everything is hunky dory.
+because of the type mismatch - mothing was in the list and all we're being deleted.
+added a str() as above and now everything is hunky dory.
 
 Bueno!
+
+##### 20140526
+
+Fixed some styling - just temporary to make it more funcitonal
+
+Moved the refresh, and delete all exisitng related force words if we are reloading the page logic to WITHIN the else: clause that is run if we are NOT POSTING... I had previously had it at the top of the view code - hence it was being run every time upon POST as well as reload - causing all terms to be deleted anyway - and hence NCBO was only being queried with the original force name... duh!
+
+Added some images to the add-another, remove links for the new force fromset - did this by "injecting" a hardcoded `<img src="/media/glyphs/glyph.png">` into the jQuery formset .js - at the end under config...
+
+```
+addText: '<img src=/media/glyphs/glyphicons_190_circle_plus.png> add another',          // Text for the add link
+deleteText: '<img src=/media/glyphs/glyphicons_191_circle_minus.png> remove',            // Text for the delete link
+```
+
+Also - fixed an issue where the info stored in the RElatedOntologyTerms model for the ontology field was an URL only accessible via the API.
+Used .split('/') to parse the URL, catch the last "ontolgy name" dir, and re-writing the URL to the human-clickable, HTML version of the terms origininating ontology...
+
+
+```
+for a, b in thing.iteritems():
+    if a == 'links' and 'ontology' in b:
+        parsedURL = b['ontology'].split('/')  #the ontology name (URL) returned from the API needs to converted to the 
+        name = parsedURL[-1]                  # human clickable link - we parse the URL and grab the last '/'sep element
+                                              # whcih is the ontology name - eg NCIT from http://data.bioportal/NCIT
+        saved_option.ontology = "http://bioportal.bioontology.org/ontologies/" + name 
+``` 
+
+NEXT UP - adding the references view...
+current plan is to allow user to upload a bibtex file or paste in bibtex formated citation, 
+parse this with https://github.com/sciunto/python-bibtexparser
+
+use an approach like this http://stackoverflow.com/questions/9235853/convert-bibtex-file-to-database-entries-using-python
+
+```
+from pybtex.database.input import bibtex
+
+#open a bibtex file
+parser = bibtex.Parser()
+bibdata = parser.parse_file("myrefs.bib")
+
+#loop through the individual references
+for bib_id in bibdata.entries:
+    b = bibdata.entries[bib_id].fields
+    try:
+        # change these lines to create a SQL insert
+        print b["title"]
+        print b["journal"]
+        print b["year"]
+        #deal with multiple authors
+        for author in bibdata.entries[bib_id].persons["author"]:
+            print author.first(), author.last()
+    # field may not exist for a reference
+    except(KeyError):
+        continue
+```
+
+to save the relevant bibtex fields to the db (via a suitable model).
+
+will need to create a model with a mimimum viable/useful number of fields that we will need to store...
+
+By storing the info granlarly in the DB via parsing the bibtex - we can later talk about relationships between authors, titles, etc etc rather than treat the entire reference as a whole.
+
 
