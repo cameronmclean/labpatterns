@@ -57,3 +57,11 @@ class NewRationale(ModelForm):
 		widgets = {  'description': Textarea(attrs={'cols':80, 'rows':20}), 'description': Textarea(attrs={'placeholder': 'Enter a detailed description of the rationale which justifies the solution'})
 		}
 
+
+class NewDiagram(ModelForm):
+	class Meta:
+		model = Diagram 
+		fields = ['title', 'comment', 'diagram']
+		labels = {'title': 'Title', 'diagram': 'Diagram', 'comment': 'Comment'}
+		widgets = { 'title': TextInput(attrs={'placeholder': 'Enter a title for the diagram'}), 'comment': Textarea(attrs={'placeholder': 'Enter a description for the diagram', 'cols':80, 'rows':20})
+		}

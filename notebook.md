@@ -1220,4 +1220,10 @@ will need to create a model with a mimimum viable/useful number of fields that w
 
 By storing the info granlarly in the DB via parsing the bibtex - we can later talk about relationships between authors, titles, etc etc rather than treat the entire reference as a whole.
 
+##### 20140527
+
+Installed bibtexparser https://bibtexparser.readthedocs.org/en/latest/install.html
+`pip install bibtexparser`
+
+next - create the view and template to accept bibtex input...
 

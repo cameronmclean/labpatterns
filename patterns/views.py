@@ -191,6 +191,21 @@ def add_new_solution(request):
 	return render(request, 'new_solutionale.html', {'formS':formS, 'formR':formR})
 
 
+def add_supporting(request):
+	#
+	# In this view we should add a diagram, references, and create links to related patterns..
+	#
+
+	# On browser back - use modelforms to handle updates...???
+
+	if request.method == 'POST':
+		print "test"
+
+	else:
+		formD = NewDiagram()
+
+	return render(request, 'add_supporting.html', {'formD':formD})
+
 def see_related_terms(request):
 
 
