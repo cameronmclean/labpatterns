@@ -193,13 +193,7 @@ def add_new_solution(request):
 
 def see_related_terms(request):
 
-	# check to see if we have loaded words already, if so, delete all the current related words in the db, and start again with a clean slate
-	# this way is a dodgy hack to prevent duplicate entries being stored in the db if the user hits back/forward multiple times
-	if 'wordlist' in request.session:
-		# get list of all the realted word objects for this session, then delete them - we then go and get them all again
-		allWordsToDelete = RelatedWord.objects.filter(force=(Force.objects.filter(parent_pattern=request.session['new_pattern_key'])))
-		for item in allWordsToDelete:
-			item.delete()
+
 
 	#create a list to store the selected words
 	listToKeep = []
@@ -214,14 +208,24 @@ def see_related_terms(request):
 		wordsToDelete = RelatedWord.objects.filter(force=(Force.objects.filter(parent_pattern=request.session['new_pattern_key'])))
 		#loop through all the related words in this session, if its not on the list - delete it.
 		
-		for thing in wordsToDelete:
+		for thing in wordsToDelete:			
 			if thing.word not in listToKeep:
+				print "removing related word " + thing.word
 				thing.delete()
 	
 		
 		return redirect('/match/')
 
 	else:
+
+		# check to see if we have loaded words already, if so, delete all the current related words in the db, and start again with a clean slate
+		# this way is a dodgy hack to prevent duplicate entries being stored in the db if the user hits back/forward multiple times
+		if 'wordlist' in request.session:
+		# get list of all the realted word objects for this session, then delete them - we then go and get them all again
+			allWordsToDelete = RelatedWord.objects.filter(force=(Force.objects.filter(parent_pattern=request.session['new_pattern_key'])))
+			for item in allWordsToDelete:
+				print "Deleting them all! " + item.word
+				item.delete()
 
 		# get all the force objects for the current pattern
 		terms = Force.objects.filter(parent_pattern=request.session['new_pattern_key'])
@@ -237,6 +241,7 @@ def see_related_terms(request):
 
 			#save the related terms in the db
 			for aword in tempWordlist:
+				print aword + " returned to views.py"
 				wordToSave = RelatedWord(force=Force.objects.get(name=name.name), word=aword)
 				wordToSave.save()
 
@@ -260,11 +265,11 @@ def ontology_lookup(request):
 		for item in listToKeep:
 			selectedValue[item] = request.POST[item]
 		
-		for item in listToKeep:
-			print item
-			print type(item)
-			for k, v in selectedValue.items():
-				print k + " " + v
+		#for item in listToKeep:
+		#	print item
+		#	print type(item)
+		#	for k, v in selectedValue.items():
+		#		print k + " " + v
 
 		
 		# set the relationship choice for the selected items
@@ -279,7 +284,7 @@ def ontology_lookup(request):
 		# loop through all the ontology matches in this session, if its not on the listToKeep - delete it.
 		for thing in allOntologyMatches:
 			if str(thing.id) not in listToKeep:
-				print "deleting " + str(thing.id)
+		#		print "deleting " + str(thing.id)
 				thing.delete()
 				
 		

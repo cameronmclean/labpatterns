@@ -84,10 +84,16 @@ def get_all(input_string):
         for item in key:
             if 'syn' in term[item]:
                 syn = term[item]['syn']
+                for entry in syn:
+                    print "Adding synonym " + entry
             if 'sim' in term[item]:
                 sim = term[item]['sim']
+                for entry in sim:
+                    print "Adding similar word " + entry
             if 'rel' in term[item]:
                 rel = term[item]['rel']
+                for entry in rel:
+                    print "Adding related word " + entry
         #print syn, sim, rel
         # add together the lists of related words
         related_words = syn+sim+rel

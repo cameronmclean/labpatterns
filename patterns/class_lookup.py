@@ -28,6 +28,7 @@ def lookup(search_terms):
 		search_results[force] = {}
 		# for each term, look it up, and append it to the dict whoes key value is the current force name
 		for item in word_list:
+			print "Searching NCBO for " + item
 			search_results[force] = (get_json(REST_URL + "/search?q=" + urllib.quote_plus(item)))
 		#combine all the results in a new dict of dict to return		
 		matches = search_results
