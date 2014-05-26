@@ -378,7 +378,10 @@ def ontology_lookup(request):
 				
 					for a, b in thing.iteritems():
 						if a == 'links' and 'ontology' in b:
-							saved_option.ontology = b['ontology'] # not sure of this will work...
+							parsedURL = b['ontology'].split('/')  #the ontology name (URL) returned from the API needs to converted to the 
+							name = parsedURL[-1]				  # human clickable link - we parse the URL and grab the last '/'sep element
+																  # whcih is the ontology name - eg NCIT from http://data.bioportal/NCIT
+							saved_option.ontology = "http://bioportal.bioontology.org/ontologies/" + name 
 				
 					saved_option.force = Force.objects.get(name=force_we_are_working_on)  # not sure if this variable is accessible
 

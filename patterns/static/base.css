@@ -15,8 +15,10 @@ h1 {
 }
 
 .forms {
-	margin-right: 25%;
-	text-align: right;
+	margin: auto;
+	width: 40%;
+	text-align: left;
+	
 }
 p.logo {
 	text-align: center;
@@ -28,11 +30,24 @@ a {
 	color: #dea8d8;
 }
 
+.page_instruction{
+	text-align: center;
+	color: white;
+	font-size: 50pt;
+}
 .button_holder {
-	margin-right: 30%;
-	text-align: right;
+	margin-left: auto;
+	margin-right: auto;
+	
 }
 
+.delete-row {
+	text-decoration: none;
+}
+
+.add-row {
+	text-decoration: none;
+}
 input[type=text] {
 color: #000000;
  font-size: 16px;
@@ -102,14 +117,27 @@ input[type=submit]:hover{
 	background: #fc7e5b ;
 }
 
-table {
-	margin-left: 25%;
+table.center {
+	margin-left: 15%;
+	margin-right: 15%;
 
 }
+
+
 td {
-	text-align: left;
+	
+	color: #E9CDB0;
+	font-size: 16px;
+}
+
+tr {
+	margin-top: 5px;
+	margin-bottom: 5px;
+
 }
 
 .force_name {
 	font-weight: bold;
+	font-size: 25px;
+	color: #E9CDB0;
 }

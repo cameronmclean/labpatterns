@@ -9,7 +9,7 @@
 		
 	</head>
 	<body onunload=""> <!-- onunload forces page reload if back button in browser is pressed  - need to repopualte forces from db !-->
-		<h1> {{ request.session.new_pattern_name }} </h1>
+		<p class="page_instruction"> {{ request.session.new_pattern_name }} </p>
 		<p class='logo'> <img src="{{ MEDIA_URL }}{{ request.session.new_pattern_image }}"> </p>
 		<div class='forms'>
 		<form id="newForce" enctype="multipart/form-data" method="POST" action="">

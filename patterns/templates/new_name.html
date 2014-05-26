@@ -5,10 +5,10 @@
 		<link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}base.css">
 	</head>
 	<body>
-		<h1> Let's add a new pattern! </h1>
-		<div class ='forms'>
+		<p class="page_instruction"> Let's add a new pattern! </p>
+		<div class='forms'>
 		<form enctype="multipart/form-data" method="POST" action="">
-				{{ form.as_p }}
+			{{ form.as_p}}
 			<div class="button_holder">
 				<input type="submit" value="Submit">
 			</div>

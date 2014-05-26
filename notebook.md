@@ -1141,3 +1141,21 @@ AHHH -
 So, a major problem is with the way I have written the flow/control logic in the views.py for fetching related terms, and ontology lookup
 Each API is being called twice - once on load, once on post - this is causing errors to the db save/select/delete...
 I can proabbly fix this with nested if and careful positioning of session variables. 
+
+fixed flow control (mostly) - still need to checked...
+
+REMEMER TO CHECK TYPES WHEN DOING COMPARISONS - the problem with the view 
+
+```
+for thing in allOntologyMatches:
+            if str(thing.id) not in listToKeep:
+                print "deleting " + str(thing.id)
+                thing.delete()
+```
+
+was that initially I was checking to see if thing.id (longint) was in listToKeep (unicode)
+because of type mismatch - mothing was in the list and all we're being deleted.
+added a str() and now everything is hunky dory.
+
+Bueno!
+

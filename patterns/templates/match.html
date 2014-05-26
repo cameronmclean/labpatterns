@@ -5,17 +5,21 @@
 		<link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}base.css">
 	</head>
 	<body onunload="">
-		<table>
+		<p class="page_instruction">Select any ontology terms that match any pattern's force names</p>
+		<table class="center">
 			
 					<form method="POST" action="" enctype="multipart/form-data"> {% csrf_token %}
 						{% for force, match in ontology_match.items %}
-							<tr class="force_name"><td>{{ force }}</td></tr>
+							<tr class="force_name"><td style="font-size: 40px;">{{ force }}</td><td>Definition</td><td>Ontology</td><td>Match</td></tr>
 								{% for item in match %}
-								<tr><td><input type="checkbox" name="checks" value="{{ item.id }}"> {{ item.prefLabel }} </td> 
-									<td>
+								<tr><td style="padding-bottom: 1em; vertical-align: text-top;"><input type="checkbox" name="checks" value="{{ item.id }}"> {{ item.prefLabel }} </td> 
+									<td style="padding-bottom: 1em;">
 										{{ item.definition }}
 									</td>
-								<td>
+									<td style="padding-bottom: 1em; vertical-align: text-top;">
+										<a href="{{ item.ontology }}" target="_blank">{{ item.ontology }}</a>
+									</td>
+								<td style="padding-bottom: 1em; vertical-align: text-top;">
 								<select name="{{ item.id }}">
 									{% for k, v in choices %}
 									<option value="{{ k }}"> {{ v }} </option>

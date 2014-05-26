@@ -5,7 +5,7 @@
 		<link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}base.css">
 	</head>
 	<body>
-		<h1> {{ request.session.new_pattern_name }} </h1>
+		<p class="page_instruction"> {{ request.session.new_pattern_name }} </p>
 		<p class='logo'> <img src="{{ MEDIA_URL }}{{ request.session.new_pattern_image }}"> </p>
 		<div class='forms'>
 		<form enctype="multipart/form-data" method="POST" action="">
