@@ -199,7 +199,16 @@ def add_supporting(request):
 	# On browser back - use modelforms to handle updates...???
 
 	if request.method == 'POST':
-		print "test"
+
+		if 'new_diagram_id' in request.session:
+			formD = NewDiagram(request.POST, instance=Diagram.objects.get(id = request.session['new_diagram_id'])) 
+
+		else:
+			formD = NewDiagram(request.POST)
+
+		if formD.is_valid():
+			newDiagramInstance = formD.save(commit=False)
+			newDiagramInstance.parent_pattern = DesignPattern.objects.get(id = request.session['new_pattern_key'])
 
 	else:
 		formD = NewDiagram()

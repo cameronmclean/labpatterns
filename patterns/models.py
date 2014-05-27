@@ -152,4 +152,42 @@ class RelatedOntologyTerm(models.Model):
     class Meta:
         db_table = 'ontology_terms'
 
+class WorkshopMetadata(models.Model):
+    id = models.AutoField(primary_key=True)
+    parent_pattern = models.ForeignKey(DesignPattern)
+    media = models.FileField('File', upload_to='workshop_materials')
 
+    def __unicode__(self):
+        return self.parent_pattern.name
+
+    class Meta:
+        db_table = 'workshop_materials'
+
+class PatternRelation(models.Model):
+    id = models.AutoField(primary_key=True)
+    subject_pattern = models.ForeignKey(DesignPattern, related_name='subject_pattern')
+    linked_pattern = models.ForeignKey(DesignPattern, related_name='linked_pattern')
+
+    USES = 'lp:uses'
+    USEDBY = 'lp:usedBy'
+    UPSTREAM = 'lp:upstreamOf'
+    DOWNSTREAM = 'lp:downstreamOf'
+    RELATED = 'lp:relatedTo'
+    INCOMPATIBLE = 'lp:incompatibleWith'
+
+    CHOICES = (
+        (USES, 'Uses'),
+        (USEDBY, 'Used By'),
+        (UPSTREAM, 'Upstream Of'),
+        (DOWNSTREAM,'Downstream Of'),
+        (RELATED, 'Related To'),
+        (INCOMPATIBLE, 'Incompatible With'),
+        )
+    
+    relationship = models.TextField(max_length=50, choices = CHOICES, default=RELATED)
+
+    def __unicode__(self):
+        return self.subject_pattern.name
+
+    class Meta:
+        db_table = 'pattern_relations'

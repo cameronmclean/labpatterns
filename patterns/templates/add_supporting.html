@@ -10,6 +10,21 @@
 			<tr> <td style="font-size: 30px;">Summary Diagram</td></tr>		
 					<form method="POST" action="" enctype="multipart/form-data"> {% csrf_token %}
 						<tr>{{ formD }}</tr>
+						<tr><td style="padding: 20px;"></td></tr>
+					
+
+						<tr><td style="font-size: 30px;">References</td></tr>
+						<tr><td>Upload a file in bibtex format</td>
+							<td><input id="ref" name="references" type="file"></td>
+
+						<tr><td style="padding: 20px;"></td></tr>
+						
+						<tr><td style="font-size: 30px;">Workshop Materials</td></tr>
+						<tr><td>Upload an archive file of any supporitng materials</td>
+							<td><input id="arch" name="archive" type="file"></td>
+
+						<tr><td style="padding: 20px;"></td></tr>
+
 						<tr><td><td>						
 							<input type="submit" value="Submit">
 						</td></td></tr>
