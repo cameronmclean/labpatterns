@@ -198,25 +198,85 @@ def add_supporting(request):
 
 	# On browser back - use modelforms to handle updates...???
 
-	if request.method == 'POST':
+	RelationFormSet = modelformset_factory(PatternRelation, form=SetPatternRelation, can_delete=False)
+	data = {
+		'form-TOTAL_FORMS': '1',
+		'form-INITIAL_FORMS': '0',
+		'form-MAX_NUM_FORMS': '',
+	}
 
+
+
+	if request.method == 'POST':
+		#and we have been to this page before
 		if 'new_diagram_id' in request.session:
 			formD = NewDiagram(request.POST, instance=Diagram.objects.get(id = request.session['new_diagram_id'])) 
 
+			RelationFormSet = modelformset_factory(PatternRelation, form=NewRelation, can_delete=False, extra=0) # extra=0 causes dont display extra forms
+																								 # if user hits back button - if there is a blank form,
+																								 # user must enter a Null force or populate another one 
+																								 #- they may not want to do this.
+			data['form-TOTAL_FORMS'] = PatternRelation.objects.filter(subject_pattern=request.session['new_pattern_key']).count()
+			initialForms = PatternRelation.objects.filter(subject_pattern=request.session['new_pattern_key'])
+			formset = RelationFormSet(queryset=initialForms)
+
+
+		# if this is our first POST
 		else:
 			formD = NewDiagram(request.POST)
+			formset = RelationFormSet(request.POST, data, queryset=PatternRelation.objects.none())
 
-		if formD.is_valid():
+		if formD.is_valid() and formset.is_valid:
 			newDiagramInstance = formD.save(commit=False)
 			newDiagramInstance.parent_pattern = DesignPattern.objects.get(id = request.session['new_pattern_key'])
+			newDiagramInstance.save()
+			request.session['new_diagram_id'] = newDiagramInstance.id
+	
+			#save the pattern relationships
+			for form in formset.forms:
+				newPatternRelation = form.save(commit=False)
+				#a hack to allow blank forms
+				if not newPatternRelation.linked_pattern:
+					print "No more linked patterns to save"
+				else:
+					# add foreign key from session variable
+					newPatternRelation.subject_pattern = DesignPattern.objects.get(id=request.session['new_pattern_key'])
+					# save each force to db
+					newPatternRelation.save()
 
+			# save zipped metadata file if sent
+			if 'archive' in request.FILES:
+				workshopMaterials = WorkshopMetadata()
+				workshopMaterials.media = request.FILES['archive']	
+				workshopMaterials.parent_pattern = DesignPattern.objects.get(id=request.session['new_pattern_key'])
+				workshopMaterials.save()
+
+			return redirect('/') 
+
+
+	#if we are not POSTing
 	else:
-		formD = NewDiagram()
+		#and we have been to this page before
+		if 'relations_added' in request.session:
+			# if yes - populate the session pattern relations 
+			RelationFormSet = modelformset_factory(PatternRelation, form=NewRelation, can_delete=False, extra=0) # extra=0 causes dont display extra forms
+																								 # if user hits back button - if there is a blank form,
+																								 # user must enter a Null force or populate another one 
+																								 #- they may not want to do this.
+			data['form-TOTAL_FORMS'] = PatternRelation.objects.filter(subject_pattern=request.session['new_pattern_key']).count()
+			initialForms = PatternRelation.objects.filter(subject_pattern=request.session['new_pattern_key'])
+			formset = RelationFormSet(queryset=initialForms)
+		
+		# otherwise this is the first time to add forces - load empty form 
+		else:
+			formset = RelationFormSet(queryset=PatternRelation.objects.none())
+			formD = NewDiagram()
+		
+	
 
-	return render(request, 'add_supporting.html', {'formD':formD})
+	return render(request, 'add_supporting.html', {'formD':formD, 'formset':formset })
 
 def see_related_terms(request):
-
 
 
 	#create a list to store the selected words
@@ -276,8 +336,6 @@ def see_related_terms(request):
 
 def ontology_lookup(request):
 
- 	
-
 	listToKeep = []
 	selectedValue = {}
 	if request.method == 'POST':
@@ -312,7 +370,7 @@ def ontology_lookup(request):
 				thing.delete()
 				
 		
-		return redirect('/')
+		return redirect('/supporting/')
 
 	else:
 		# clear all previous potential matches and re-fetch on page reload

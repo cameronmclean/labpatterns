@@ -1227,3 +1227,51 @@ Installed bibtexparser https://bibtexparser.readthedocs.org/en/latest/install.ht
 
 next - create the view and template to accept bibtex input...
 
+##### 20140528
+
+OOOOK then...
+
+Trying to do too many things at once again - chasing my tail...
+
+But got supporting info page mostly working.
+
+One trouble I had was using modelforms and modelformsets to be allowed optional or blank on the view/template.
+This is tricky as we dont want to break the model or form validation, and once presented, Django expets the form to filled in on .is_valid() of .save() methods.
+
+Solution - found here http://stackoverflow.com/questions/1134667/django-required-field-in-model-form
+
+in the forms.py the def __init__ part...
+
+```
+class SetPatternRelation(ModelForm):
+    class Meta:
+        model = PatternRelation 
+        fields = ['linked_pattern', 'relationship']
+        lables = {'linked_pattern': 'Related Pattern', 'relationship':'Relationship to current pattern'}
+        widgets = { 'relationship': Select(choices=PatternRelation.CHOICES) }
+   
+    # this makes all the fields optional so we dont have to chnage the model, but the forms can be left blank
+    def __init__(self, *args, **kwargs):
+        super(SetPatternRelation, self).__init__(*args, **kwargs)
+
+        for key in self.fields:
+            self.fields[key].required = False
+```
+
+I also (possibly redundantly) added this to the views... if linked_pattern is blank - skip it
+else: add current pattern and save....
+
+```
+#save the pattern relationships
+for form in formset.forms:
+    newPatternRelation = form.save(commit=False)
+    #a hack to allow blank forms
+    if not newPatternRelation.linked_pattern:
+        print "No more linked patterns to save"
+    else:
+        # add foreign key from session variable
+        newPatternRelation.subject_pattern = DesignPattern.objects.get(id=request.session['new_pattern_key'])
+        # save each force to db
+        newPatternRelation.save()
+```
+

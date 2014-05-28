@@ -165,8 +165,8 @@ class WorkshopMetadata(models.Model):
 
 class PatternRelation(models.Model):
     id = models.AutoField(primary_key=True)
-    subject_pattern = models.ForeignKey(DesignPattern, related_name='subject_pattern')
-    linked_pattern = models.ForeignKey(DesignPattern, related_name='linked_pattern')
+    subject_pattern = models.ForeignKey(DesignPattern, related_name='subject_pattern', blank=True, null=True)
+    linked_pattern = models.ForeignKey(DesignPattern, related_name='linked_pattern', blank=True, null=True)
 
     USES = 'lp:uses'
     USEDBY = 'lp:usedBy'
@@ -184,7 +184,7 @@ class PatternRelation(models.Model):
         (INCOMPATIBLE, 'Incompatible With'),
         )
     
-    relationship = models.TextField(max_length=50, choices = CHOICES, default=RELATED)
+    relationship = models.TextField('Relationship to current pattern', max_length=50, choices = CHOICES, default=RELATED)
 
     def __unicode__(self):
         return self.subject_pattern.name

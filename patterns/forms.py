@@ -1,4 +1,4 @@
-from django.forms import ModelForm, TextInput, HiddenInput, Textarea
+from django.forms import ModelForm, TextInput, HiddenInput, Textarea, ChoiceField, Select
 from patterns.models import *
 
 # This is the form to add a new pattern name and pattern pictogram to the database - it is inteded as the fist page for adding a new pattern.
@@ -65,3 +65,22 @@ class NewDiagram(ModelForm):
 		labels = {'title': 'Title', 'diagram': 'Diagram', 'comment': 'Comment'}
 		widgets = { 'title': TextInput(attrs={'placeholder': 'Enter a title for the diagram'}), 'comment': Textarea(attrs={'placeholder': 'Enter a description for the diagram', 'cols':80, 'rows':20})
 		}
+
+	# this makes all the fields optional so we dont have to chnage the model, but the forms can be left blank
+	def __init__(self, *args, **kwargs):
+		super(NewDiagram, self).__init__(*args, **kwargs)
+		for key in self.fields:
+			self.fields[key].required = False
+
+class SetPatternRelation(ModelForm):
+	class Meta:
+		model = PatternRelation 
+		fields = ['linked_pattern', 'relationship']
+		lables = {'linked_pattern': 'Related Pattern', 'relationship':'Relationship to current pattern'}
+		widgets = { 'relationship': Select(choices=PatternRelation.CHOICES) }
+	# this makes all the fields optional so we dont have to chnage the model, but the forms can be left blank
+	def __init__(self, *args, **kwargs):
+		super(SetPatternRelation, self).__init__(*args, **kwargs)
+
+		for key in self.fields:
+			self.fields[key].required = False

@@ -3,12 +3,14 @@
 	<head>
 		<title>Add some references</title>
 		<link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}base.css">
+		<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery-1.11.1.min.js"></script>
+		<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.formset.js"></script>
 	</head>
 	<body onunload="">
 		<p class="page_instruction">Add supporting info</p>
 		<table class="center">	
 			<tr> <td style="font-size: 30px;">Summary Diagram</td></tr>		
-					<form method="POST" action="" enctype="multipart/form-data"> {% csrf_token %}
+					<form id="supporting" method="POST" action="" enctype="multipart/form-data"> {% csrf_token %}
 						<tr>{{ formD }}</tr>
 						<tr><td style="padding: 20px;"></td></tr>
 					
@@ -16,20 +18,34 @@
 						<tr><td style="font-size: 30px;">References</td></tr>
 						<tr><td>Upload a file in bibtex format</td>
 							<td><input id="ref" name="references" type="file"></td>
-
 						<tr><td style="padding: 20px;"></td></tr>
 						
 						<tr><td style="font-size: 30px;">Workshop Materials</td></tr>
 						<tr><td>Upload an archive file of any supporitng materials</td>
 							<td><input id="arch" name="archive" type="file"></td>
-
 						<tr><td style="padding: 20px;"></td></tr>
 
-						<tr><td><td>						
+						<tr><td style="font-size: 30px;">Related Patterns</td></tr>
+						<tr><td>Select any patterns related to this one</td>
+						
+							{% for form in formset %}
+							<tr class='form-container'> {{ form }} </tr>
+							<tr><td style="padding: 20px;"></td></tr>
+							{% endfor %}
+						
+
+						<tr><td> <td>						
 							<input type="submit" value="Submit">
 						</td></td></tr>
-						
+						{{ formset.management_form }}
 					</form>							
 		</table>			
+		
+		<script type="text/javascript"> 
+			$(function() {
+				$('.form-container').formset();
+			})
+		</script>
+
 	</body>
 </html>
