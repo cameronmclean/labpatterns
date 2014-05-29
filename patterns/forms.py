@@ -75,8 +75,8 @@ class NewDiagram(ModelForm):
 class SetPatternRelation(ModelForm):
 	class Meta:
 		model = PatternRelation 
-		fields = ['linked_pattern', 'relationship']
-		lables = {'linked_pattern': 'Related Pattern', 'relationship':'Relationship to current pattern'}
+		fields = [ 'relationship', 'linked_pattern']
+		lables = {'linked_pattern': 'Related Pattern', 'relationship':'This pattern ...'}
 		widgets = { 'relationship': Select(choices=PatternRelation.CHOICES) }
 	# this makes all the fields optional so we dont have to chnage the model, but the forms can be left blank
 	def __init__(self, *args, **kwargs):

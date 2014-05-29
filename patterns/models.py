@@ -184,7 +184,7 @@ class PatternRelation(models.Model):
         (INCOMPATIBLE, 'Incompatible With'),
         )
     
-    relationship = models.TextField('Relationship to current pattern', max_length=50, choices = CHOICES, default=RELATED)
+    relationship = models.TextField('This pattern ...', max_length=50, choices = CHOICES, default=RELATED)
 
     def __unicode__(self):
         return self.subject_pattern.name

@@ -9,7 +9,9 @@
 	<body onunload="">
 		<p class="page_instruction">Add supporting info</p>
 		<table class="center">	
-			<tr> <td style="font-size: 30px;">Summary Diagram</td></tr>		
+			<tbody>
+			<tr> <td style="font-size: 30px;">Summary Diagram</td></tr>	
+			<tr><div class="forms">	
 					<form id="supporting" method="POST" action="" enctype="multipart/form-data"> {% csrf_token %}
 						<tr>{{ formD }}</tr>
 						<tr><td style="padding: 20px;"></td></tr>
@@ -26,19 +28,26 @@
 						<tr><td style="padding: 20px;"></td></tr>
 
 						<tr><td style="font-size: 30px;">Related Patterns</td></tr>
-						<tr><td>Select any patterns related to this one</td>
+						<tr><td>Select any patterns related to this one</td>						
+						<tr></td>
+						<div class="formPosition">
+							{% for form in formset %} 
+								<table class='form-container'><tr> {{ form }} <tr></table>
+							{% endfor %} 
 						
-							{% for form in formset %}
-							<tr class='form-container'> {{ form }} </tr>
-							<tr><td style="padding: 20px;"></td></tr>
-							{% endfor %}
 						
+							{{ formset.management_form }}
 
-						<tr><td> <td>						
-							<input type="submit" value="Submit">
+						</div>
+						</td></tr>
+						<tr><td style="padding: 20px;"><input type="submit" value="Submit"></td></tr>					
+							
 						</td></td></tr>
-						{{ formset.management_form }}
-					</form>							
+						
+					</form>			
+					</div>
+				</tr>
+					<tbody>				
 		</table>			
 		
 		<script type="text/javascript"> 

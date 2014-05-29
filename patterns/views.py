@@ -210,23 +210,24 @@ def add_supporting(request):
 	if request.method == 'POST':
 		#and we have been to this page before
 		if 'new_diagram_id' in request.session:
-			formD = NewDiagram(request.POST, instance=Diagram.objects.get(id = request.session['new_diagram_id'])) 
-
+			#fetch the previous diagram input
+			formD = NewDiagram(request.POST, request.FILES, instance=Diagram.objects.get(id = request.session['new_diagram_id'])) 
+			#fetch the previous pattern relation input
 			RelationFormSet = modelformset_factory(PatternRelation, form=NewRelation, can_delete=False, extra=0) # extra=0 causes dont display extra forms
 																								 # if user hits back button - if there is a blank form,
 																								 # user must enter a Null force or populate another one 
 																								 #- they may not want to do this.
 			data['form-TOTAL_FORMS'] = PatternRelation.objects.filter(subject_pattern=request.session['new_pattern_key']).count()
 			initialForms = PatternRelation.objects.filter(subject_pattern=request.session['new_pattern_key'])
-			formset = RelationFormSet(queryset=initialForms)
+			formset = RelationFormSet(data, queryset=initialForms)
 
 
 		# if this is our first POST
 		else:
-			formD = NewDiagram(request.POST)
+			formD = NewDiagram(request.POST, request.FILES)
 			formset = RelationFormSet(request.POST, data, queryset=PatternRelation.objects.none())
 
-		if formD.is_valid() and formset.is_valid:
+		if formD.is_valid() and formset.is_valid():
 			newDiagramInstance = formD.save(commit=False)
 			newDiagramInstance.parent_pattern = DesignPattern.objects.get(id = request.session['new_pattern_key'])
 			newDiagramInstance.save()
@@ -265,11 +266,11 @@ def add_supporting(request):
 																								 #- they may not want to do this.
 			data['form-TOTAL_FORMS'] = PatternRelation.objects.filter(subject_pattern=request.session['new_pattern_key']).count()
 			initialForms = PatternRelation.objects.filter(subject_pattern=request.session['new_pattern_key'])
-			formset = RelationFormSet(queryset=initialForms)
+			formset = RelationFormSet(data, queryset=initialForms)
 		
-		# otherwise this is the first time to add forces - load empty form 
+		# otherwise this is the first time to add forces - load empty forms 
 		else:
-			formset = RelationFormSet(queryset=PatternRelation.objects.none())
+			formset = RelationFormSet(data, queryset=PatternRelation.objects.none())
 			formD = NewDiagram()
 		
 	
