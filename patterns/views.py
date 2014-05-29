@@ -272,38 +272,80 @@ def add_supporting(request):
 					refToSave = Reference()
 					refToSave.parent_pattern = DesignPattern.objects.get(id=request.session['new_pattern_key'])
 					
-					print refToSave.parent_pattern.id
+					# if fields of interest are present in the reference, add them to the Reference object
 					
-					try:
+					if 'type' in entry:
 						refToSave.kind = entry['type']
-						print refToSave.kind
+
+					if 'title' in entry:
 						refToSave.title = entry['title']
-						print refToSave.title
+
+					if 'author' in entry:
 						refToSave.authors = entry['author']
-						refToSave.publisher = entry['plublisher']
+
+					if 'publisher' in entry:
+						refToSave.publisher = entry['publisher']
+
+					if 'journal' in entry:
 						refToSave.journal = entry['journal']
+
+					if 'pages' in entry:
 						refToSave.pages = entry['pages']
+
+					if 'year' in entry:
 						refToSave.year = entry['year']
+
+					if 'volume' in entry:
 						refToSave.volume = entry['volume']
+
+					if 'number' in entry:
 						refToSave.number = entry['number']
+
+					if 'month' in entry:
 						refToSave.month = entry['month']
-						refToSave.URL = entry['URL']
-						refToSave.save()
+
+					if 'URL' in entry:
+						refToSave.url = entry['URL']
+					
+					#save the reference object
+					refToSave.save()
+
+					###################
+					# note i had initiall tried to do the above with the following try: except: - but it wouldnt save to the db...
 
 
-					except(KeyError):
-						continue
+					#try:
+					#	refToSave.kind = entry['type']
+					#	print refToSave.kind
+					#	refToSave.title = entry['title']
+					#	print refToSave.title
+					#	refToSave.authors = entry['author']
+					#	refToSave.publisher = entry['publisher']
+					#	refToSave.journal = entry['journal']
+					#	refToSave.pages = entry['pages']
+					#	refToSave.year = entry['year']
+					#	print type(refToSave.year)
+					#	refToSave.volume = entry['volume']
+					#	refToSave.number = entry['number']
+					#	refToSave.month = entry['month']
+					#	refToSave.URL = entry['URL']
+					#	print "Hello world!"
+					#	refToSave.save()
+
+
+					#except(KeyError):
+					#	continue
 					
-					try:
-						refToSave.full_clean()
-						refToSave.is_valid()
-						refToSave.save()
-					except ValidationError as e:
-						print type(e)
-						for message in e:
-							print message
+					#try:
+					#	refToSave.full_clean()
+					#	refToSave.is_valid()
+					#	refToSave.save()
+					#except ValidationError as e:
+					#	print type(e)
+					#	for message in e:
+					#		print message
 					
-				#	refToSave.save()
+					
 
 
 
