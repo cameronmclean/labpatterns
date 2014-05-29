@@ -1326,3 +1326,31 @@ Other fields to include
     -month
     -url
 
+SOOOO - some more learnging today
+
+1. make sure models has null=True to allow blank in DB and blank=True to allow blank forms
+2. when allowing null FK - also add default=None to the models or south complains...
+3. I messed up south migrations over this, ended up deleting db, starting with a blank models.py and running 
+    -`migrate.py syncdb` again, 
+    - doing `python manage.py schemamigrations patters --initial` 
+    - then doing an initial migrate `python manage.py migrate patterns`
+    - the reinstating the models.py, followed by another round of schemamigration / migrate...
+4. gatting the bibtex parsed file to save to the db was trouble - the inital combo of try: / except: was not getting to the .save() funciton - rewrote as `if 'key' in item:` tests instead and works fine...
+
+```
+for entry in parsedRefs:
+
+    refToSave = Reference()
+    refToSave.parent_pattern = DesignPattern.objects.get(id=request.session['new_pattern_key'])
+                
+    # if fields of interest are present in the reference, add them to the Reference object                    
+    if 'type' in entry:
+        refToSave.kind = entry['type']
+
+    if 'title' in entry:
+        refToSave.title = entry['title']
+
+        ### etc...
+
+    refToSave.save()
+```

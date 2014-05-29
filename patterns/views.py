@@ -349,7 +349,7 @@ def add_supporting(request):
 
 
 
-		#return redirect('/') 
+		return redirect('/') 
 
 
 	#if we are not POSTing
