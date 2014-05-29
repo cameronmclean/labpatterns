@@ -1280,3 +1280,32 @@ Next - to test ...
 OK REMEMEBR to pass request.FILES to any forms that take a input='files' attribute. THis was causing the digagrams form to not save the uploaded file....
 
 Workshop metadata upload works...
+
+##### 201405029
+
+Adding bibtext file upload and parsing support 
+BibTexParser already installed - see 20140527
+
+To views.py - add
+
+```
+from bibtexparser.bparser import BibTexParser
+from bibtexparser.customization import convert_to_unicode
+```
+
+then, upon POST, we check for a bibtex file, if so we load it and parse it, then store the items in a list of dicts....
+Note - we just print them for now....
+
+```
+# see if Bibtexfile attached, if so, parse and store in db
+    if 'references' in request.FILES:
+        refs = request.FILES['references']
+        # parsedRefs is a BibTexParser object
+        loadedRefs = BibTexParser(refs.read(), customization=convert_to_unicode)
+        # get the list of dicts from the object
+        parsedRefs = loadedRefs.get_entry_list()
+
+        for entry in parsedRefs:
+            for key, value in entry.items():
+                print key + " " + value
+```

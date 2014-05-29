@@ -5,7 +5,8 @@ from django.forms.models import modelformset_factory
 from patterns.models import *
 from django.views.decorators.cache import cache_control
 from patterns import thesaurus3, class_lookup
-
+from bibtexparser.bparser import BibTexParser
+from bibtexparser.customization import convert_to_unicode
 
 # Create your views here.
 
@@ -213,7 +214,7 @@ def add_supporting(request):
 			#fetch the previous diagram input
 			formD = NewDiagram(request.POST, request.FILES, instance=Diagram.objects.get(id = request.session['new_diagram_id'])) 
 			#fetch the previous pattern relation input
-			RelationFormSet = modelformset_factory(PatternRelation, form=NewRelation, can_delete=False, extra=0) # extra=0 causes dont display extra forms
+			RelationFormSet = modelformset_factory(PatternRelation, form=SetPatternRelation, can_delete=False, extra=0) # extra=0 causes dont display extra forms
 																								 # if user hits back button - if there is a blank form,
 																								 # user must enter a Null force or populate another one 
 																								 #- they may not want to do this.
@@ -252,7 +253,20 @@ def add_supporting(request):
 				workshopMaterials.parent_pattern = DesignPattern.objects.get(id=request.session['new_pattern_key'])
 				workshopMaterials.save()
 
-			return redirect('/') 
+			# see if Bibtexfile attached, if so, parse and store in db
+			if 'references' in request.FILES:
+				refs = request.FILES['references']
+				# parsedRefs is a BibTexParser object
+				loadedRefs = BibTexParser(refs.read(), customization=convert_to_unicode)
+				# get the list of dicts from the object
+				parsedRefs = loadedRefs.get_entry_list()
+
+				for entry in parsedRefs:
+					for key, value in entry.items():
+						print key + " " + value
+
+
+			#return redirect('/') 
 
 
 	#if we are not POSTing
@@ -260,7 +274,7 @@ def add_supporting(request):
 		#and we have been to this page before
 		if 'relations_added' in request.session:
 			# if yes - populate the session pattern relations 
-			RelationFormSet = modelformset_factory(PatternRelation, form=NewRelation, can_delete=False, extra=0) # extra=0 causes dont display extra forms
+			RelationFormSet = modelformset_factory(PatternRelation, form=SetPatternRelation, can_delete=False, extra=0) # extra=0 causes dont display extra forms
 																								 # if user hits back button - if there is a blank form,
 																								 # user must enter a Null force or populate another one 
 																								 #- they may not want to do this.
