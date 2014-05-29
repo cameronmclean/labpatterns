@@ -1309,3 +1309,20 @@ Note - we just print them for now....
             for key, value in entry.items():
                 print key + " " + value
 ```
+
+SO - to create a model to store references in our DB....
+One table/model for references
+each reference will have a primary key (autogen), and a designPattern foreign key
+Other fields to include
+    -type
+    -title
+    -authors
+    -publisher
+    -journal
+    -pages
+    -year
+    -volume
+    -number
+    -month
+    -url
+

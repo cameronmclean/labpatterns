@@ -8,31 +8,80 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'WorkshopMetadata'
-        db.create_table(u'workshop_materials', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('parent_pattern', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['patterns.DesignPattern'])),
-            ('media', self.gf('django.db.models.fields.files.FileField')(max_length=100)),
-        ))
-        db.send_create_signal(u'patterns', ['WorkshopMetadata'])
 
-        # Adding model 'PatternRelation'
-        db.create_table(u'pattern_relations', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('subject_pattern', self.gf('django.db.models.fields.related.ForeignKey')(related_name=u'subject_pattern', to=orm['patterns.DesignPattern'])),
-            ('linked_pattern', self.gf('django.db.models.fields.related.ForeignKey')(related_name=u'linked_pattern', to=orm['patterns.DesignPattern'])),
-            ('relationship', self.gf('django.db.models.fields.TextField')(default=u'lp:relatedTo', max_length=50)),
-        ))
-        db.send_create_signal(u'patterns', ['PatternRelation'])
+        # Changing field 'Reference.publisher'
+        db.alter_column(u'refs', 'publisher', self.gf('django.db.models.fields.TextField')(max_length=255, null=True))
 
+        # Changing field 'Reference.kind'
+        db.alter_column(u'refs', 'kind', self.gf('django.db.models.fields.TextField')(max_length=255, null=True))
+
+        # Changing field 'Reference.newField'
+        db.alter_column(u'refs', 'newField', self.gf('django.db.models.fields.TextField')(max_length=255, null=True))
+
+        # Changing field 'Reference.title'
+        db.alter_column(u'refs', 'title', self.gf('django.db.models.fields.TextField')(max_length=255, null=True))
+
+        # Changing field 'Reference.url'
+        db.alter_column(u'refs', 'url', self.gf('django.db.models.fields.TextField')(max_length=255, null=True))
+
+        # Changing field 'Reference.journal'
+        db.alter_column(u'refs', 'journal', self.gf('django.db.models.fields.TextField')(max_length=255, null=True))
+
+        # Changing field 'Reference.authors'
+        db.alter_column(u'refs', 'authors', self.gf('django.db.models.fields.TextField')(max_length=255, null=True))
+
+        # Changing field 'Reference.number'
+        db.alter_column(u'refs', 'number', self.gf('django.db.models.fields.TextField')(max_length=255, null=True))
+
+        # Changing field 'Reference.month'
+        db.alter_column(u'refs', 'month', self.gf('django.db.models.fields.TextField')(max_length=255, null=True))
+
+        # Changing field 'Reference.volume'
+        db.alter_column(u'refs', 'volume', self.gf('django.db.models.fields.TextField')(max_length=255, null=True))
+
+        # Changing field 'Reference.year'
+        db.alter_column(u'refs', 'year', self.gf('django.db.models.fields.TextField')(max_length=255, null=True))
+
+        # Changing field 'Reference.pages'
+        db.alter_column(u'refs', 'pages', self.gf('django.db.models.fields.TextField')(max_length=255, null=True))
 
     def backwards(self, orm):
-        # Deleting model 'WorkshopMetadata'
-        db.delete_table(u'workshop_materials')
 
-        # Deleting model 'PatternRelation'
-        db.delete_table(u'pattern_relations')
+        # Changing field 'Reference.publisher'
+        db.alter_column(u'refs', 'publisher', self.gf('django.db.models.fields.TextField')(default='', max_length=255))
 
+        # Changing field 'Reference.kind'
+        db.alter_column(u'refs', 'kind', self.gf('django.db.models.fields.TextField')(default='', max_length=255))
+
+        # Changing field 'Reference.newField'
+        db.alter_column(u'refs', 'newField', self.gf('django.db.models.fields.TextField')(default='', max_length=255))
+
+        # Changing field 'Reference.title'
+        db.alter_column(u'refs', 'title', self.gf('django.db.models.fields.TextField')(default='', max_length=255))
+
+        # Changing field 'Reference.url'
+        db.alter_column(u'refs', 'url', self.gf('django.db.models.fields.TextField')(default='', max_length=255))
+
+        # Changing field 'Reference.journal'
+        db.alter_column(u'refs', 'journal', self.gf('django.db.models.fields.TextField')(default='', max_length=255))
+
+        # Changing field 'Reference.authors'
+        db.alter_column(u'refs', 'authors', self.gf('django.db.models.fields.TextField')(default='', max_length=255))
+
+        # Changing field 'Reference.number'
+        db.alter_column(u'refs', 'number', self.gf('django.db.models.fields.TextField')(default='', max_length=255))
+
+        # Changing field 'Reference.month'
+        db.alter_column(u'refs', 'month', self.gf('django.db.models.fields.TextField')(default='', max_length=255))
+
+        # Changing field 'Reference.volume'
+        db.alter_column(u'refs', 'volume', self.gf('django.db.models.fields.TextField')(default='', max_length=255))
+
+        # Changing field 'Reference.year'
+        db.alter_column(u'refs', 'year', self.gf('django.db.models.fields.TextField')(default='', max_length=255))
+
+        # Changing field 'Reference.pages'
+        db.alter_column(u'refs', 'pages', self.gf('django.db.models.fields.TextField')(default='', max_length=255))
 
     models = {
         u'patterns.context': {
@@ -74,9 +123,9 @@ class Migration(SchemaMigration):
         u'patterns.patternrelation': {
             'Meta': {'object_name': 'PatternRelation', 'db_table': "u'pattern_relations'"},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'linked_pattern': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'linked_pattern'", 'to': u"orm['patterns.DesignPattern']"}),
+            'linked_pattern': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'related_name': "u'linked_pattern'", 'null': 'True', 'blank': 'True', 'to': u"orm['patterns.DesignPattern']"}),
             'relationship': ('django.db.models.fields.TextField', [], {'default': "u'lp:relatedTo'", 'max_length': '50'}),
-            'subject_pattern': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'subject_pattern'", 'to': u"orm['patterns.DesignPattern']"})
+            'subject_pattern': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'related_name': "u'subject_pattern'", 'null': 'True', 'blank': 'True', 'to': u"orm['patterns.DesignPattern']"})
         },
         u'patterns.problem': {
             'Meta': {'object_name': 'Problem', 'db_table': "u'problem'"},
@@ -89,6 +138,23 @@ class Migration(SchemaMigration):
             'description': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'parent_pattern': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['patterns.DesignPattern']"})
+        },
+        u'patterns.reference': {
+            'Meta': {'object_name': 'Reference', 'db_table': "u'refs'"},
+            'authors': ('django.db.models.fields.TextField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'journal': ('django.db.models.fields.TextField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'kind': ('django.db.models.fields.TextField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'month': ('django.db.models.fields.TextField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'newField': ('django.db.models.fields.TextField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'number': ('django.db.models.fields.TextField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'pages': ('django.db.models.fields.TextField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'parent_pattern': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['patterns.DesignPattern']"}),
+            'publisher': ('django.db.models.fields.TextField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'title': ('django.db.models.fields.TextField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'url': ('django.db.models.fields.TextField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'volume': ('django.db.models.fields.TextField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'year': ('django.db.models.fields.TextField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'})
         },
         u'patterns.relatedontologyterm': {
             'Meta': {'object_name': 'RelatedOntologyTerm', 'db_table': "u'ontology_terms'"},

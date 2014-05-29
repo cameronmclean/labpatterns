@@ -165,8 +165,8 @@ class WorkshopMetadata(models.Model):
 
 class PatternRelation(models.Model):
     id = models.AutoField(primary_key=True)
-    subject_pattern = models.ForeignKey(DesignPattern, related_name='subject_pattern', blank=True, null=True)
-    linked_pattern = models.ForeignKey(DesignPattern, related_name='linked_pattern', blank=True, null=True)
+    subject_pattern = models.ForeignKey(DesignPattern, related_name='subject_pattern', blank=True, null=True, default=None)
+    linked_pattern = models.ForeignKey(DesignPattern, related_name='linked_pattern', blank=True, null=True, default=None)
 
     USES = 'lp:uses'
     USEDBY = 'lp:usedBy'
@@ -191,3 +191,25 @@ class PatternRelation(models.Model):
 
     class Meta:
         db_table = 'pattern_relations'
+
+class Reference(models.Model):
+    id = models.AutoField(primary_key=True)
+    parent_pattern = models.ForeignKey(DesignPattern)
+    kind = models.TextField('Type', max_length=255, blank=True, null=True) 
+    title = models.TextField('Title', max_length=255, blank=True, null=True)
+    authors = models.TextField('Authors', max_length=255, blank=True, null=True)
+    publisher = models.TextField('Publisher', max_length=255, blank=True, null=True)
+    journal = models.TextField('Journal', max_length=255, blank=True, null=True)
+    pages = models.TextField('Pages', max_length=255, blank=True, null=True)
+    year = models.TextField('Year', max_length=255, blank=True, null=True)
+    volume = models.TextField('Volume', max_length=255, blank=True, null=True)
+    number = models.TextField('Number', max_length=255, blank=True, null=True)
+    month = models.TextField('Month', max_length=255, blank=True, null=True)
+    url = models.TextField('URL', max_length=255, blank=True, null=True)
+    newField = models.TextField('new', max_length=255, blank=True, null=True)
+
+    def __unicode__(self):
+        return self.title 
+
+    class Meta:
+        db_table = 'refs'

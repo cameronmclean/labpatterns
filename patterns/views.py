@@ -261,12 +261,53 @@ def add_supporting(request):
 				# get the list of dicts from the object
 				parsedRefs = loadedRefs.get_entry_list()
 
+			#	print type(parsedRefs)
+			#	for item in parsedRefs:
+			#		print item
+
 				for entry in parsedRefs:
-					for key, value in entry.items():
-						print key + " " + value
+				#	for k, v in entry.items():
+				#		print k + " " + v
+
+					refToSave = Reference()
+					refToSave.parent_pattern = DesignPattern.objects.get(id=request.session['new_pattern_key'])
+					
+					print refToSave.parent_pattern.id
+					
+					try:
+						refToSave.kind = entry['type']
+						print refToSave.kind
+						refToSave.title = entry['title']
+						print refToSave.title
+						refToSave.authors = entry['author']
+						refToSave.publisher = entry['plublisher']
+						refToSave.journal = entry['journal']
+						refToSave.pages = entry['pages']
+						refToSave.year = entry['year']
+						refToSave.volume = entry['volume']
+						refToSave.number = entry['number']
+						refToSave.month = entry['month']
+						refToSave.URL = entry['URL']
+						refToSave.save()
 
 
-			#return redirect('/') 
+					except(KeyError):
+						continue
+					
+					try:
+						refToSave.full_clean()
+						refToSave.is_valid()
+						refToSave.save()
+					except ValidationError as e:
+						print type(e)
+						for message in e:
+							print message
+					
+				#	refToSave.save()
+
+
+
+		#return redirect('/') 
 
 
 	#if we are not POSTing
