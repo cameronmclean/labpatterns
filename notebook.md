@@ -1354,3 +1354,13 @@ for entry in parsedRefs:
 
     refToSave.save()
 ```
+
+##### 20140530
+
+So the incorrect display in the ontology match templte seems to be due to incorrect return from class_lookup.py OR teh views.py logic that saves it the DB...
+
+Check we get it in the right format to be passes to `ontology_matches` in the template. 
+
+
+YEP -it's defo an error in the logic in class_lookup.py
+

@@ -496,6 +496,7 @@ def ontology_lookup(request):
 			termsToAdd = []
 			termsToAdd.append(i.name)
 			for thing in wordObjects:
+				print "thing word =" + thing.word
 				termsToAdd.append(thing.word)
 			search_terms[i.name] = termsToAdd
 
@@ -515,10 +516,15 @@ def ontology_lookup(request):
 
 #			# store in a dict forces [key] and terms [list of values] to be passed to the lookup
 #			search_terms[item.name] = terms
-			
-		searchKeys = search_terms.keys()
-		for k in searchKeys:
-			print "search keys " + k
+		
+		for k, v in search_terms.iteritems():
+			print "search term key = " + k
+			for item in v:
+				print "word to search = " + item 
+
+		#searchKeys = search_terms.keys()
+		#for k in searchKeys:
+		#	print "search keys " + k
 
 			#for k, v in search_terms.items():   #
 			#	print k 						#  This prints a list of search terms to the console for debugging
@@ -527,6 +533,11 @@ def ontology_lookup(request):
 	
 		# lookup returns a dict of dict to be stored in matches. dict[force name] {[term]{ncbo JSON}} 
 		matches = class_lookup.lookup(search_terms)
+
+		for k, v in matches.iteritems():
+			print "force = " + k
+			for item in v:
+				print "term searched = " + item
 
 		#print type(matches) # matches is a dict {}
 		#k = matches.keys() # keys are unicode force names
