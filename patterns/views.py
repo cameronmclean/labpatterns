@@ -480,30 +480,53 @@ def ontology_lookup(request):
 		# Get list of all the current forces from the db
 		currentForces = Force.objects.filter(parent_pattern=request.session['new_pattern_key'])
 
+		###########
+		# we need to create dict of lists to hand to the class_lookup() - which searches the NCBO API
+		############
+
+		# create the dict to pass
 		search_terms = {}
-		#terms = []
+
+		# add the keys to the dict, and make the values a blank list
+		
+
+		for i in currentForces:			
+			# get the related words for the force
+			wordObjects = RelatedWord.objects.filter(force_id=i.id)
+			termsToAdd = []
+			termsToAdd.append(i.name)
+			for thing in wordObjects:
+				termsToAdd.append(thing.word)
+			search_terms[i.name] = termsToAdd
+
+		
 		# for each force, get the name, sore in a list, then append to the list the related words (if any)
 		# then query the NCBO API, and return a dict which contains the force, and a list of ontology matches....
-		for item in currentForces:
-			terms = [] # reset the terms list?
-			#store the foce name
-			terms.append(item.name)
+#		for force in currentForces:
+#			terms = []
+#			del terms[:] # reset the terms list?
+#			#store the foce name
+#			terms.append(item.name)
 		
 			# get the related terms and append to the list
-			wordObjects = RelatedWord.objects.filter(force_id=item.id)
-			for thing in wordObjects:
-				terms.append(thing.word)
+#			wordObjects = RelatedWord.objects.filter(force_id=force.id)
+##			for thing in wordObjects:
+#				terms.append(thing.word)
 
-			# store in a dict forces [key] and terms [list of values] to be passed to the lookup
-			search_terms[item.name] = terms
+#			# store in a dict forces [key] and terms [list of values] to be passed to the lookup
+#			search_terms[item.name] = terms
+			
+		searchKeys = search_terms.keys()
+		for k in searchKeys:
+			print "search keys " + k
 
-		#	for k, v in search_terms.items():   #
-		#		#print k 						#  This prints a list of search terms to the console for debugging
-		#		for item in v:					# 
-		#			print item 					#
+			#for k, v in search_terms.items():   #
+			#	print k 						#  This prints a list of search terms to the console for debugging
+			#	for item in v:					# 
+			#		print "search item = " + item 					#
 	
 		# lookup returns a dict of dict to be stored in matches. dict[force name] {[term]{ncbo JSON}} 
-			matches = class_lookup.lookup(search_terms)
+		matches = class_lookup.lookup(search_terms)
 
 		#print type(matches) # matches is a dict {}
 		#k = matches.keys() # keys are unicode force names
@@ -516,12 +539,17 @@ def ontology_lookup(request):
 			force_we_are_working_on = match
 			# we are interested in the 'collection' key = the value of which is a list of dicts! yikes!
 			# i.e data['collection'] in this for loop contains a list of dicts{} !
-	
+			for k, v in data.iteritems():
+				newList = v['collection']
+				#newlist is a list of dicts
+
+				for thing in newList:
+
 			# for each force term (match) fetch the list of dicts we are interested in
-			newlist = data['collection']
+		#	newlist = data['collection']
 
 			# we now want to access the dicts in this list
-			for thing in newlist:
+		#	for thing in newlist:
 			#	print type(thing)
 			#	k = thing.keys()
 			#	print k
@@ -550,29 +578,29 @@ def ontology_lookup(request):
 			
 			#only save instances for which definitions exist 
 			
-				saved_option = RelatedOntologyTerm()
+					saved_option = RelatedOntologyTerm()
 
-				if 'definition' in thing:
+					if 'definition' in thing:
 
-					saved_option.definition = str(thing['definition']).strip('u[]')  # we need to convert this to a string
-					saved_option.prefLabel = thing['prefLabel']
-					if 'synonym' in thing:
-						saved_option.synonyms = thing['synonym']  # watch the s here!
-					saved_option.term = thing['@id']
-					#saved_option['type'] = thing['@type']
+						saved_option.definition = str(thing['definition']).strip('u[]')  # we need to convert this to a string
+						saved_option.prefLabel = thing['prefLabel']
+						if 'synonym' in thing:
+							saved_option.synonyms = thing['synonym']  # watch the s here!
+						saved_option.term = thing['@id']
+						#saved_option['type'] = thing['@type']
 				
-					for a, b in thing.iteritems():
-						if a == 'links' and 'ontology' in b:
-							parsedURL = b['ontology'].split('/')  #the ontology name (URL) returned from the API needs to converted to the 
-							name = parsedURL[-1]				  # human clickable link - we parse the URL and grab the last '/'sep element
+						for a, b in thing.iteritems():
+							if a == 'links' and 'ontology' in b:
+								parsedURL = b['ontology'].split('/')  #the ontology name (URL) returned from the API needs to converted to the 
+								name = parsedURL[-1]				  # human clickable link - we parse the URL and grab the last '/'sep element
 																  # whcih is the ontology name - eg NCIT from http://data.bioportal/NCIT
-							saved_option.ontology = "http://bioportal.bioontology.org/ontologies/" + name 
+								saved_option.ontology = "http://bioportal.bioontology.org/ontologies/" + name 
 				
-					saved_option.force = Force.objects.get(name=force_we_are_working_on)  # not sure if this variable is accessible
+						saved_option.force = Force.objects.get(name=force_we_are_working_on)  # not sure if this variable is accessible
 
-					saved_option.save()
+						saved_option.save()
 
-					request.session['already_matched'] = True
+				request.session['already_matched'] = True
 
 				# should now be a list saved to the db. - a list of all possible cadidate matches 
 				# we need to present these to the template and have the user cull/select only the relevant ones
