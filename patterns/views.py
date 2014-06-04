@@ -496,7 +496,7 @@ def ontology_lookup(request):
 			termsToAdd = []
 			termsToAdd.append(i.name)
 			for thing in wordObjects:
-				print "thing word =" + thing.word
+		#		print "thing word =" + thing.word
 				termsToAdd.append(thing.word)
 			search_terms[i.name] = termsToAdd
 
@@ -517,28 +517,28 @@ def ontology_lookup(request):
 #			# store in a dict forces [key] and terms [list of values] to be passed to the lookup
 #			search_terms[item.name] = terms
 		
-		for k, v in search_terms.iteritems():
-			print "search term key = " + k
-			for item in v:
-				print "word to search = " + item 
+		for k, v in search_terms.iteritems():		#
+			print "search term key = " + k 			# Print the keys (forces) and the list of related terms to search
+			for item in v: 							# that is passed to class_lookup() 
+				print "word to search = " + item 	# -= For debugging =-
 
-		#searchKeys = search_terms.keys()
-		#for k in searchKeys:
-		#	print "search keys " + k
-
-			#for k, v in search_terms.items():   #
-			#	print k 						#  This prints a list of search terms to the console for debugging
-			#	for item in v:					# 
-			#		print "search item = " + item 					#
-	
-		# lookup returns a dict of dict to be stored in matches. dict[force name] {[term]{ncbo JSON}} 
+		# lookup returns a dict of a list of dict to be stored in matches. dict[force name] [ [term]:{ncbo JSON}, [term2]:{ncbo JSON},  etc...}} 
 		matches = class_lookup.lookup(search_terms)
 
-		for k, v in matches.iteritems():
+		for k, l in matches.iteritems():
 			print "force = " + k
-			for item in v:
-				print "term searched = " + item
+			# l should be a dict...
+			for terms, result in l.iteritems():
+				terms = l.keys()
+				for word in terms:
+					print "search term = " + word
 
+
+#		for k, v in matches.iteritems():
+#			print "force = " + k
+#			for item in v:
+#				for key, value in item.iteritems():
+#					print "term searched = " + key
 		#print type(matches) # matches is a dict {}
 		#k = matches.keys() # keys are unicode force names
 		#print k

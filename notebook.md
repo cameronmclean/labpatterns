@@ -1364,3 +1364,65 @@ Check we get it in the right format to be passes to `ontology_matches` in the te
 
 YEP -it's defo an error in the logic in class_lookup.py
 
+##### 20140603
+
+hmmm - stalled.
+class_lookup.py has a psychic dict.
+matches - has lookup values assigned to it, before the code actually assigns it....
+Hmmmmm!
+maybe check for overworked variable names...
+ try a completeely differnt stucutre to save and return the JSON....
+ bugger...
+
+ 
+ ##### 20140604
+
+Alright! Debugging success - eventaully.
+
+Problem - ontology lookup was returning only the last force words matces for every force.
+
+Solution - the code where I added the dict to the returned matches was passing the values by *reference*, not *value* (this is default python behaviour) - hence for each force in the lookup look, the results dict of related terms was being updated/overwritten, but the previously stored values in the matches to be returned were all pointing to the same dict, hence all now had the same vlaues.
+
+Need to `import copy` and `new_dict = copy.deepcopy(dict_to_copy)` inorder to put current values in a new dict and then save that.
+
+code is now...
+
+```
+def lookup(search_terms):
+    
+    #############################################################################
+    # lookup takes a dict of lists as input   search_terms [force name]:[list of terms, .., ... ]
+    # returns a horribly nested dict of dicts of dicts (and then some) [forcename]: {[term]: {nsbo JSON}}
+    # nesting is complicated mainly due to ncbo JSON object - which we convert to more nested dicts....
+    #############################################################################
+
+    matches = {}
+                
+    # create a temp dict list to store all the results for each force term 
+    search_values = {}
+
+    # the following code is verbose and maybe a bit slow, but i left it this way after having to do
+    # some crazy debugging 
+
+    forces = search_terms.keys()
+
+    for force in forces:  
+        search_values.clear()
+        termList = search_terms[force]
+        
+        for item in termList:
+            lookupResult = {}
+            lookupResult.clear()
+            print "looking up item " + item
+            lookupResult = (get_json(REST_URL + "/search?q=" + urllib.quote_plus(item)))
+            search_values[item] = lookupResult
+
+
+        print "saving dict within dict for matches"
+        valuesToSave = copy.deepcopy(search_values)
+        matches[force] = valuesToSave
+
+
+    return matches
+```
+
