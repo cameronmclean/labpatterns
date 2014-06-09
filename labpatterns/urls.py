@@ -17,5 +17,6 @@ urlpatterns = patterns('',
     url(r'^related/$', 'patterns.views.see_related_terms', name='see_related'),
     url(r'^match/$', 'patterns.views.ontology_lookup', name='match'),
     url(r'^supporting/$', 'patterns.views.add_supporting', name='supporting'),
+    url(r'^tiny/$', 'patterns.views.tiny', name='tiny'),
     url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT }),
 )

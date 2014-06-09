@@ -1426,3 +1426,69 @@ def lookup(search_terms):
     return matches
 ```
 
+###### 20140609
+
+Diverging a bit here - thinking ahead to how we might use patterns and ontologies to create citable, sematically enriched, git-ified lab protocols.
+
+tinyMCE is a cool as HTML editor - http://www.tinymce.com/wiki.php/Configuration:plugins
+and RDFaCE is a cool as plugin that allows us to semantically annotate HTML with RDFa.
+http://aksw.org/Projects/RDFaCE.html
+http://wiki.aksw.org/Projects/RDFaCE
+http://rdface.aksw.org/
+
+I installed the latest release from https://bitbucket.org/ali1k/rdface/downloads
+which was `ali1k-rdface-d24d34cba9de.zip`
+
+Copied into the media/js/tinyace dir in the django project folder and installed it by following the tinyACE instrucitons, and some copy/paste from the view source from the http://rdface.aksw.org/ demo.
+
+The template looks like this...
+
+```
+<!DOCTYPE html>
+
+<html lang=en>
+    <head>
+        <title>Set the scene</title>
+        <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}base.css"> 
+        <script type="text/javascript" src="{{ MEDIA_URL }}js/jquery-1.11.1.min.js"></script>
+        <script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.cookie.js"></script>
+        <script type="text/javascript" src="{{ MEDIA_URL }}js/tinymce/tinymce.min.js"></script>
+        <script type="text/javascript">
+    tinymce.init({
+    selector: "textarea",
+    schema: "html5",
+    //inline: true,
+    valid_elements : "+*[*]",
+    content_css: "{{ MEDIA_URL }}js/tinymce/plugins/rdface/css/rdface.css,tinymce/plugins/rdface/schema_creator/schema_colors.css",
+    plugins: [
+        "advlist autolink lists link image charmap print preview anchor",
+        "searchreplace visualblocks code fullscreen",
+        "insertdatetime media table contextmenu paste rdface"
+    ],
+    toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | rdfaceMain rdfaceRun"
+    });
+    
+
+    </script>
+
+    <!-- ORIGINAL tinyACE   <script type="text/javascript">
+            tinymce.init({
+            selector: "textarea",
+            plugins : "autolink, rdface"
+            }); 
+        </script>  !-->
+
+    </head>
+
+<body>
+    <form method="post">
+        <textarea></textarea>
+    </form>
+</body>
+```
+I wired it up to an URL and empty view in views/urls.py.
+
+And it works!
+
+
+

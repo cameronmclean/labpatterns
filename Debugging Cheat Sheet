@@ -1,0 +1,5 @@
+Debugging Cheat Sheet
+=====================
+
+- check type before making comparisons
+- pass by reference or by value?

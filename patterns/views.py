@@ -501,37 +501,21 @@ def ontology_lookup(request):
 			search_terms[i.name] = termsToAdd
 
 		
-		# for each force, get the name, sore in a list, then append to the list the related words (if any)
-		# then query the NCBO API, and return a dict which contains the force, and a list of ontology matches....
-#		for force in currentForces:
-#			terms = []
-#			del terms[:] # reset the terms list?
-#			#store the foce name
-#			terms.append(item.name)
-		
-			# get the related terms and append to the list
-#			wordObjects = RelatedWord.objects.filter(force_id=force.id)
-##			for thing in wordObjects:
-#				terms.append(thing.word)
+	#	for k, v in search_terms.iteritems():		#
+	#		print "search term key = " + k 			# Print the keys (forces) and the list of related terms to search
+	#		for item in v: 							# that is passed to class_lookup() 
+	#			print "word to search = " + item 	# -= For debugging =-
 
-#			# store in a dict forces [key] and terms [list of values] to be passed to the lookup
-#			search_terms[item.name] = terms
-		
-		for k, v in search_terms.iteritems():		#
-			print "search term key = " + k 			# Print the keys (forces) and the list of related terms to search
-			for item in v: 							# that is passed to class_lookup() 
-				print "word to search = " + item 	# -= For debugging =-
-
-		# lookup returns a dict of a list of dict to be stored in matches. dict[force name] [ [term]:{ncbo JSON}, [term2]:{ncbo JSON},  etc...}} 
+		# lookup returns nested dicts to be stored in matches. dict[force name] : {[term]:{ncbo JSON}, [term2]:{ncbo JSON},  etc...}} 
 		matches = class_lookup.lookup(search_terms)
 
-		for k, l in matches.iteritems():
-			print "force = " + k
-			# l should be a dict...
-			for terms, result in l.iteritems():
-				terms = l.keys()
-				for word in terms:
-					print "search term = " + word
+	#	for k, l in matches.iteritems():
+	#		print "force = " + k
+	#		# l should be a dict...
+	#		for terms, result in l.iteritems():
+	#			terms = l.keys()
+	#			for word in terms:
+	#				print "search term = " + word
 
 
 #		for k, v in matches.iteritems():
@@ -645,4 +629,6 @@ def ontology_lookup(request):
 
 		return render(request, 'match.html', {'ontology_match':ontology_match, 'choices':choices})
 
-
+def tiny(request):
+	
+	return render(request, 'tiny.html')

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+
+<html lang=en>
+	<head>
+		<title>Set the scene</title>
+		<link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}base.css"> 
+		<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery-1.11.1.min.js"></script>
+		<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.cookie.js"></script>
+		<script type="text/javascript" src="{{ MEDIA_URL }}js/tinymce/tinymce.min.js"></script>
+		<script type="text/javascript">
+	tinymce.init({
+    selector: "textarea",
+    schema: "html5",
+    //inline: true,
+	valid_elements : "+*[*]",
+	content_css: "{{ MEDIA_URL }}js/tinymce/plugins/rdface/css/rdface.css,tinymce/plugins/rdface/schema_creator/schema_colors.css",
+    plugins: [
+        "advlist autolink lists link image charmap print preview anchor",
+        "searchreplace visualblocks code fullscreen",
+        "insertdatetime media table contextmenu paste rdface"
+    ],
+    toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | rdfaceMain rdfaceRun"
+	});
+	
+
+	</script>
+
+	<!-- ORIGINAL tinyACE	<script type="text/javascript">
+		    tinymce.init({
+    		selector: "textarea",
+    		plugins : "autolink, rdface"
+ 			}); 
+		</script>  !-->
+
+	</head>
+
+<body>
+	<form method="post">
+    	<textarea></textarea>
+	</form>
+</body>
